@@ -5,3 +5,4 @@ ROWS, COLS = 8, 8
 SQUARE_SIZE = WIDTH // COLS
 DARK_BROWN = (79, 55, 42)
 LIGHT_BROWN = (237, 204, 155)
+pygame.display.set_caption("chess")

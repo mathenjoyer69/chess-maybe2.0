@@ -3,7 +3,7 @@ import random
 
 class Bot:
     def __init__(self):
-        self.piece_values = {chess.PAWN: 75,chess.KNIGHT: 320,chess.BISHOP: 330,chess.ROOK: 500,chess.QUEEN: 900,chess.KING: 20000}
+        self.piece_values = {chess.PAWN: 75,chess.KNIGHT: 420,chess.BISHOP: 530,chess.ROOK: 600,chess.QUEEN: 1150,chess.KING: 20000}
 
         self.white_pawn_table = [
             0, 0, 0, 0, 0, 0, 0, 0,
@@ -11,7 +11,7 @@ class Bot:
             0, 40, 0, 5, 5, 0, 40, 0,
             10, 10, 20, 60, 60, 20, 10, 10,
             5, 5, 10, 20, 20, 10, 5, 5,
-            -5, 0, 0, -10, -10, 0, 0, -5,
+            -10, 0, 0, -10, -10, 0, 0, -10,
             5, -5, -10, 0, 0, -10, -5, 5,
             0, 0, 0, 0, 0, 0, 0, 0
         ]
@@ -19,8 +19,8 @@ class Bot:
         self.white_knight_table = [
             -50, -40, -30, -30, -30, -30, -40, -50,
             -40, -20, 0, 5, 5, 0, -20, -40,
-            -30, 5, 10, 15, 15, 10, 5, -30,
-            -30, 5, 15, 20, 20, 15, 5, -30,
+            -30, 5, 40, 15, 15, 40, 5, -30,
+            -30, -7, 15, 20, 20, 15, -7, -30,
             -30, 5, 15, 20, 20, 15, 5, -30,
             -30, 5, 10, 15, 15, 10, 5, -30,
             -40, -20, 0, 0, 0, 0, -20, -40,

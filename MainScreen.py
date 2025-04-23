@@ -3,7 +3,7 @@ import tkinter as tk
 class MainScreen:
     def __init__(self):
         self.root = tk.Tk()
-
+        print("1234")
         self.autoplay_online_bool = tk.BooleanVar(value=False)
         self.analysis = tk.BooleanVar(value=False)
         self.autoplay_bool = tk.BooleanVar(value=False)

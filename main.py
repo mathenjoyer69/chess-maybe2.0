@@ -4,9 +4,9 @@ import chess
 import pyautogui
 import bot
 import config
-import GameStates
 import MainScreen
 
+chess_bot = bot.Bot()
 main_screen = MainScreen.MainScreen()
 player_color = main_screen.settings['player_color']
 bot_vs_bot = main_screen.settings['bot_vs_bot']
@@ -27,10 +27,6 @@ for piece, filename in PIECES.items():
 
 board = chess.Board() if not custom_board_bool else chess.Board(None)
 screen = pygame.display.set_mode((config.WIDTH, config.HEIGHT))
-pygame.display.set_caption("chess")
-
-
-chess_bot = bot.Bot()
 
 def draw_board(flipped):
     for row in range(config.ROWS):
@@ -108,7 +104,7 @@ flipped = player_color
 counter = 0
 moves_played = []
 
-while running:
+while running and custom_board_bool:
     draw_board(flipped)
     draw_pieces(flipped)
     pygame.display.flip()
