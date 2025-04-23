@@ -1,0 +1,937 @@
+def evaluate_board(board):
+    piece_values = {chess.PAWN: 71, chess.KNIGHT: 293, chess.BISHOP: 300,chess.ROOK: 456, chess.QUEEN: 905, chess.KING: 20000}
+
+    num_major_pieces = sum(1 for piece in board.piece_map().values() if piece.piece_type in {chess.QUEEN, chess.ROOK})
+
+    piece_square_tables = {
+        chess.PAWN: [
+            0, 5, 10, 15, 15, 10, 5, 0,
+            0, 10, 20, 25, 25, 20, 10, 0,
+            0, 5, 10, 20, 20, 10, 5, 0,
+            5, 5, 10, 15, 15, 10, 5, 5,
+            5, 0, 5, 10, 10, 5, 0, 5,
+            0, 0, 0, -5, -5, 0, 0, 0,
+            0, 0, 0, 5, 5, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+        ],
+        chess.KNIGHT: [
+            -50, -40, -30, -30, -30, -30, -40, -50,
+            -40, -20, -5, -5, -5, -5, -20, -40,
+            -30, 5, 10, 15, 15, 10, 5, -30,
+            -30, 0, 15, 20, 20, 15, 0, -30,
+            -30, 5, 15, 20, 20, 15, 5, -30,
+            -30, 0, 10, 15, 15, 10, 0, -30,
+            -40, -20, 5, 5, 5, 5, -20, -40,
+            -50, -40, -30, -30, -30, -30, -40, -50,
+        ],
+        chess.BISHOP: [
+            -20, -10, -10, -10, -10, -10, -10, -20,
+            -10, 5, 0, 0, 0, 0, 5, -10,
+            -10, 0, 5, 5, 5, 5, 0, -10,
+            -10, 0, 5, 10, 10, 5, 0, -10,
+            -10, 0, 5, 10, 10, 5, 0, -10,
+            -10, 0, 5, 5, 5, 5, 0, -10,
+            -10, 7, 0, 0, 0, 0, 7, -10,
+            -20, -10, -10, -10, -10, -10, -10, -20,
+        ],
+        chess.ROOK: [
+            0, 5, 10, 10, 10, 10, 5, 0,
+            5, 5, 10, 10, 10, 10, 5, 5,
+            10, 10, 20, 20, 20, 20, 10, 10,
+            10, 10, 20, 20, 20, 20, 10, 10,
+            10, 10, 20, 20, 20, 20, 10, 10,
+            5, 5, 10, 10, 10, 10, 5, 5,
+            0, 5, 10, 10, 10, 10, 5, 0,
+            0, 0, 5, 5, 5, 5, 0, 0,
+        ],
+        chess.QUEEN: [
+            -20, -10, -5, 0, 0, -5, -10, -20,
+            -10, 0, 5, 5, 5, 5, 0, -10,
+            -5, 5, 10, 10, 10, 10, 5, -5,
+            0, 5, 10, 15, 15, 10, 5, 0,
+            0, 5, 10, 15, 15, 10, 5, 0,
+            -5, 5, 10, 10, 10, 10, 5, -5,
+            -10, 0, 5, 5, 5, 5, 0, -10,
+            -20, -10, -5, 0, 0, -5, -10, -20,
+        ],
+        chess.KING: [
+            -30, -40, -40, -50, -50, -40, -40, -30,
+            -30, -40, -40, -50, -50, -40, -40, -30,
+            -30, -40, -40, -50, -50, -40, -40, -30,
+            -30, -40, -40, -50, -50, -40, -40, -30,
+            -20, -30, -30, -40, -40, -30, -30, -20,
+            -10, -20, -20, -30, -30, -20, -20, -10,
+            0, -10, -10, -20, -20, -10, -10, 0,
+            20, 20, 10, 0, 0, 10, 20, 20,
+        ]
+    }
+    if num_major_pieces < 4:
+        piece_square_tables[chess.KING] = [
+        -10, -10, -10, -10, -10, -10, -10, -10,
+        -10, -5, -5, -5, -5, -5, -5, -10,
+        -10, -5, 0, 0, 0, 0, -5, -10,
+        -10, -5, 0, 5, 5, 0, -5, -10,
+        -10, -5, 0, 5, 5, 0, -5, -10,
+        -10, -5, 0, 0, 0, 0, -5, -10,
+        -10, -5, -5, -5, -5, -5, -5, -10,
+        -10, -10, -10, -10, -10, -10, -10, -10,
+    ]
+    value = 0
+    for square in chess.SQUARES:
+        piece = board.piece_at(square)
+        if piece:
+            if piece.color == chess.WHITE:
+                sign = 1
+            else:
+                sign = -1
+            value += sign * piece_values[piece.piece_type]
+
+            if piece.piece_type == chess.PAWN:
+                value += sign * piece_square_tables[chess.PAWN][square]
+            elif piece.piece_type == chess.KNIGHT:
+                value += sign * piece_square_tables[chess.KNIGHT][square]
+            elif piece.piece_type == chess.BISHOP:
+                value += sign * piece_square_tables[chess.BISHOP][square]
+            elif piece.piece_type == chess.ROOK:
+                value += sign * piece_square_tables[chess.ROOK][square]
+            elif piece.piece_type == chess.QUEEN:
+                value += sign * piece_square_tables[chess.QUEEN][square]
+            elif piece.piece_type == chess.KING:
+                value += sign * piece_square_tables[chess.KING][square]
+
+    value += 10 * (len(list(board.legal_moves)) if board.turn == chess.WHITE else -len(list(board.legal_moves)))
+
+    if board.is_checkmate():
+        return float('-inf') if board.turn == chess.WHITE else float('inf')
+
+    return value
+
+###############################################################################################
+
+def evaluate_board(board):
+    piece_values = {chess.PAWN: 71, chess.KNIGHT: 293, chess.BISHOP: 300,chess.ROOK: 456, chess.QUEEN: 905, chess.KING: 20000}
+
+    num_major_pieces = sum(1 for piece in board.piece_map().values() if piece.piece_type in {chess.QUEEN, chess.ROOK})
+
+    piece_square_tables = {
+        chess.PAWN: [
+            0, 5, 10, 15, 15, 10, 5, 0,
+            0, 10, 20, 25, 25, 20, 10, 0,
+            0, 5, 10, 20, 20, 10, 5, 0,
+            5, 5, 10, 15, 15, 10, 5, 5,
+            5, 0, 5, 10, 10, 5, 0, 5,
+            0, 0, 0, -5, -5, 0, 0, 0,
+            0, 0, 0, 5, 5, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+        ],
+        chess.KNIGHT: [
+            -50, -40, -30, -30, -30, -30, -40, -50,
+            -40, -20, -5, -5, -5, -5, -20, -40,
+            -30, 5, 10, 15, 15, 10, 5, -30,
+            -30, 0, 15, 20, 20, 15, 0, -30,
+            -30, 5, 15, 20, 20, 15, 5, -30,
+            -30, 0, 10, 15, 15, 10, 0, -30,
+            -40, -20, 5, 5, 5, 5, -20, -40,
+            -50, -40, -30, -30, -30, -30, -40, -50,
+        ],
+        chess.BISHOP: [
+            -20, -10, -10, -10, -10, -10, -10, -20,
+            -10, 5, 0, 0, 0, 0, 5, -10,
+            -10, 0, 5, 5, 5, 5, 0, -10,
+            -10, 0, 5, 10, 10, 5, 0, -10,
+            -10, 0, 5, 10, 10, 5, 0, -10,
+            -10, 0, 5, 5, 5, 5, 0, -10,
+            -10, 7, 0, 0, 0, 0, 7, -10,
+            -20, -10, -10, -10, -10, -10, -10, -20,
+        ],
+        chess.ROOK: [
+            0, 5, 10, 10, 10, 10, 5, 0,
+            5, 5, 10, 10, 10, 10, 5, 5,
+            10, 10, 20, 20, 20, 20, 10, 10,
+            10, 10, 20, 20, 20, 20, 10, 10,
+            10, 10, 20, 20, 20, 20, 10, 10,
+            5, 5, 10, 10, 10, 10, 5, 5,
+            0, 5, 10, 10, 10, 10, 5, 0,
+            0, 0, 5, 5, 5, 5, 0, 0,
+        ],
+        chess.QUEEN: [
+            -20, -10, -5, 0, 0, -5, -10, -20,
+            -10, 0, 5, 5, 5, 5, 0, -10,
+            -5, 5, 10, 10, 10, 10, 5, -5,
+            0, 5, 10, 15, 15, 10, 5, 0,
+            0, 5, 10, 15, 15, 10, 5, 0,
+            -5, 5, 10, 10, 10, 10, 5, -5,
+            -10, 0, 5, 5, 5, 5, 0, -10,
+            -20, -10, -5, 0, 0, -5, -10, -20,
+        ],
+        chess.KING: [
+            -30, -40, -40, -50, -50, -40, -40, -30,
+            -30, -40, -40, -50, -50, -40, -40, -30,
+            -30, -40, -40, -50, -50, -40, -40, -30,
+            -30, -40, -40, -50, -50, -40, -40, -30,
+            -20, -30, -30, -40, -40, -30, -30, -20,
+            -10, -20, -20, -30, -30, -20, -20, -10,
+            0, -10, -10, -20, -20, -10, -10, 0,
+            20, 20, 10, 0, 0, 10, 20, 20,
+        ]
+    }
+    if num_major_pieces < 4:
+        piece_square_tables[chess.KING] = [
+        -10, -10, -10, -10, -10, -10, -10, -10,
+        -10, -5, -5, -5, -5, -5, -5, -10,
+        -10, -5, 0, 0, 0, 0, -5, -10,
+        -10, -5, 0, 5, 5, 0, -5, -10,
+        -10, -5, 0, 5, 5, 0, -5, -10,
+        -10, -5, 0, 0, 0, 0, -5, -10,
+        -10, -5, -5, -5, -5, -5, -5, -10,
+        -10, -10, -10, -10, -10, -10, -10, -10,
+    ]
+    material_score = sum(piece_values[piece.piece_type] * (1 if piece.color == chess.WHITE else -1) for piece in board.piece_map().values())
+
+    piece_square_bonus = 0
+    for square, piece in board.piece_map().items():
+        table = piece_square_tables[piece.piece_type]
+        if piece.color == chess.WHITE:
+            piece_square_bonus += table[square]
+        else:
+            piece_square_bonus += table[chess.square_mirror(square)]
+
+    castling_bonus = 0
+    if board.has_castling_rights(chess.WHITE):
+        castling_bonus += 50
+    if board.has_castling_rights(chess.BLACK):
+        castling_bonus += 50
+
+    early_rook_penalty = sum(35 if board.piece_at(move.from_square) and board.piece_at(move.from_square).piece_type == chess.ROOK and len(board.move_stack) < 13 else 0 for move in board.move_stack)
+
+    early_king_move_penalty = 0
+    king_moves = [move for move in board.move_stack if board.piece_at(move.from_square) and board.piece_at(move.from_square).piece_type == chess.KING]
+    if len(king_moves) > 0:
+        early_king_move_penalty += 30
+
+    threat_bonus = 0
+    for square in chess.SQUARES:
+        piece = board.piece_at(square)
+        if piece:
+            attackers = board.attackers(not piece.color, square)
+            defenders = board.attackers(piece.color, square)
+            threat_bonus += len(defenders) * 10 - len(attackers) * 10
+
+    evaluation = material_score+piece_square_bonus+castling_bonus+early_rook_penalty+early_king_move_penalty+threat_bonus
+    #print(-evaluation)
+    if board.turn == chess.WHITE:
+        return evaluation
+    else:
+        return -evaluation
+##################################################################################################
+    piece_values = {chess.PAWN: 100, chess.KNIGHT: 320, chess.BISHOP: 330,chess.ROOK: 500, chess.QUEEN: 900, chess.KING: 20000}
+
+    num_major_pieces = sum(1 for piece in board.piece_map().values() if piece.piece_type in {chess.QUEEN, chess.ROOK})
+
+    piece_square_tables = {
+        chess.PAWN: [
+            0, 5, 10, 15, 15, 10, 5, 0,
+            0, 10, 20, 25, 25, 20, 10, 0,
+            0, 5, 10, 20, 20, 10, 5, 0,
+            5, 5, 10, 15, 15, 10, 5, 5,
+            5, 0, 5, 10, 10, 5, 0, 5,
+            0, 0, 0, -5, -5, 0, 0, 0,
+            0, 0, 0, 5, 5, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+        ],
+        chess.KNIGHT: [
+            -50, -40, -30, -30, -30, -30, -40, -50,
+            -40, -20, -5, -5, -5, -5, -20, -40,
+            -30, 5, 10, 15, 15, 10, 5, -30,
+            -30, 0, 15, 20, 20, 15, 0, -30,
+            -30, 5, 15, 20, 20, 15, 5, -30,
+            -30, 0, 10, 15, 15, 10, 0, -30,
+            -40, -20, 5, 5, 5, 5, -20, -40,
+            -50, -40, -30, -30, -30, -30, -40, -50,
+        ],
+        chess.BISHOP: [
+            -20, -10, -10, -10, -10, -10, -10, -20,
+            -10, 5, 0, 0, 0, 0, 5, -10,
+            -10, 0, 5, 5, 5, 5, 0, -10,
+            -10, 0, 5, 10, 10, 5, 0, -10,
+            -10, 0, 5, 10, 10, 5, 0, -10,
+            -10, 0, 5, 5, 5, 5, 0, -10,
+            -10, 7, 0, 0, 0, 0, 7, -10,
+            -20, -10, -10, -10, -10, -10, -10, -20,
+        ],
+        chess.ROOK: [
+            0, 5, 10, 10, 10, 10, 5, 0,
+            5, 5, 10, 10, 10, 10, 5, 5,
+            10, 10, 20, 20, 20, 20, 10, 10,
+            10, 10, 20, 20, 20, 20, 10, 10,
+            10, 10, 20, 20, 20, 20, 10, 10,
+            5, 5, 10, 10, 10, 10, 5, 5,
+            0, 5, 10, 10, 10, 10, 5, 0,
+            0, 0, 5, 5, 5, 5, 0, 0,
+        ],
+        chess.QUEEN: [
+            -20, -10, -5, 0, 0, -5, -10, -20,
+            -10, 0, 5, 5, 5, 5, 0, -10,
+            -5, 5, 10, 10, 10, 10, 5, -5,
+            0, 5, 10, 15, 15, 10, 5, 0,
+            0, 5, 10, 15, 15, 10, 5, 0,
+            -5, 5, 10, 10, 10, 10, 5, -5,
+            -10, 0, 5, 5, 5, 5, 0, -10,
+            -20, -10, -5, 0, 0, -5, -10, -20,
+        ],
+        chess.KING: [
+            -30, -40, -40, -50, -50, -40, -40, -30,
+            -30, -40, -40, -50, -50, -40, -40, -30,
+            -30, -40, -40, -50, -50, -40, -40, -30,
+            -30, -40, -40, -50, -50, -40, -40, -30,
+            -20, -30, -30, -40, -40, -30, -30, -20,
+            -10, -20, -20, -30, -30, -20, -20, -10,
+            0, -10, -10, -20, -20, -10, -10, 0,
+            20, 20, 10, 0, 0, 10, 20, 20,
+        ]
+    }
+    if num_major_pieces < 4:
+        piece_square_tables[chess.KING] = [
+        -10, -10, -10, -10, -10, -10, -10, -10,
+        -10, -5, -5, -5, -5, -5, -5, -10,
+        -10, -5, 0, 0, 0, 0, -5, -10,
+        -10, -5, 0, 5, 5, 0, -5, -10,
+        -10, -5, 0, 5, 5, 0, -5, -10,
+        -10, -5, 0, 0, 0, 0, -5, -10,
+        -10, -5, -5, -5, -5, -5, -5, -10,
+        -10, -10, -10, -10, -10, -10, -10, -10,
+    ]
+    material_score = sum(piece_values[piece.piece_type] * (1 if piece.color == chess.WHITE else -1) for piece in board.piece_map().values())
+
+    piece_square_bonus = 0
+    for square, piece in board.piece_map().items():
+        table = piece_square_tables[piece.piece_type]
+        if piece.color == chess.WHITE:
+            piece_square_bonus += table[square]
+        else:
+            piece_square_bonus += table[chess.square_mirror(square)]
+
+    castling_bonus = 0
+    if board.has_castling_rights(chess.WHITE):
+        castling_bonus += 50
+    if board.has_castling_rights(chess.BLACK):
+        castling_bonus += 50
+
+    early_rook_penalty = sum(35 if board.piece_at(move.from_square) and board.piece_at(move.from_square).piece_type == chess.ROOK and len(board.move_stack) < 13 else 0 for move in board.move_stack)
+
+    early_king_move_penalty = 0
+    king_moves = [move for move in board.move_stack if board.piece_at(move.from_square) and board.piece_at(move.from_square).piece_type == chess.KING]
+    if len(king_moves) > 0:
+        early_king_move_penalty += 30
+
+    threat_bonus = 0
+    for square in chess.SQUARES:
+        piece = board.piece_at(square)
+        if piece:
+            attackers = board.attackers(not piece.color, square)
+            defenders = board.attackers(piece.color, square)
+            threat_bonus += len(defenders) * 10 - len(attackers) * 10
+
+    evaluation = material_score+piece_square_bonus+castling_bonus+early_rook_penalty+early_king_move_penalty+threat_bonus
+    #print(-evaluation)
+    if board.turn == chess.WHITE:
+        return evaluation
+    else:
+        return -evaluation
+
+#############################################################################################################
+
+    num_major_pieces = sum(1 for piece in board.piece_map().values() if piece.piece_type in {chess.QUEEN, chess.ROOK})
+
+    piece_square_tables = {
+        chess.PAWN: [
+            0, 5, 10, 15, 15, 10, 5, 0,
+            0, 10, 20, 25, 25, 20, 10, 0,
+            0, 5, 10, 20, 20, 10, 5, 0,
+            5, 5, 10, 15, 15, 10, 5, 5,
+            5, 0, 5, 10, 10, 5, 0, 5,
+            0, 0, 0, -5, -5, 0, 0, 0,
+            0, 0, 0, 5, 5, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+        ],
+        chess.KNIGHT: [
+            -50, -40, -30, -30, -30, -30, -40, -50,
+            -40, -20, -5, -5, -5, -5, -20, -40,
+            -30, 5, 10, 15, 15, 10, 5, -30,
+            -30, 0, 15, 20, 20, 15, 0, -30,
+            -30, 5, 15, 20, 20, 15, 5, -30,
+            -30, 0, 10, 15, 15, 10, 0, -30,
+            -40, -20, 5, 5, 5, 5, -20, -40,
+            -50, -40, -30, -30, -30, -30, -40, -50,
+        ],
+        chess.BISHOP: [
+            -20, -10, -10, -10, -10, -10, -10, -20,
+            -10, 5, 0, 0, 0, 0, 5, -10,
+            -10, 0, 5, 5, 5, 5, 0, -10,
+            -10, 0, 5, 10, 10, 5, 0, -10,
+            -10, 0, 5, 10, 10, 5, 0, -10,
+            -10, 0, 5, 5, 5, 5, 0, -10,
+            -10, 7, 0, 0, 0, 0, 7, -10,
+            -20, -10, -10, -10, -10, -10, -10, -20,
+        ],
+        chess.ROOK: [
+            0, 5, 10, 10, 10, 10, 5, 0,
+            5, 5, 10, 10, 10, 10, 5, 5,
+            10, 10, 20, 20, 20, 20, 10, 10,
+            10, 10, 20, 20, 20, 20, 10, 10,
+            10, 10, 20, 20, 20, 20, 10, 10,
+            5, 5, 10, 10, 10, 10, 5, 5,
+            0, 5, 10, 10, 10, 10, 5, 0,
+            0, 0, 5, 5, 5, 5, 0, 0,
+        ],
+        chess.QUEEN: [
+            -20, -10, -5, 0, 0, -5, -10, -20,
+            -10, 0, 5, 5, 5, 5, 0, -10,
+            -5, 5, 10, 10, 10, 10, 5, -5,
+            0, 5, 10, 15, 15, 10, 5, 0,
+            0, 5, 10, 15, 15, 10, 5, 0,
+            -5, 5, 10, 10, 10, 10, 5, -5,
+            -10, 0, 5, 5, 5, 5, 0, -10,
+            -20, -10, -5, 0, 0, -5, -10, -20,
+        ],
+        chess.KING: [
+            -30, -40, -40, -50, -50, -40, -40, -30,
+            -30, -40, -40, -50, -50, -40, -40, -30,
+            -30, -40, -40, -50, -50, -40, -40, -30,
+            -30, -40, -40, -50, -50, -40, -40, -30,
+            -20, -30, -30, -40, -40, -30, -30, -20,
+            -10, -20, -20, -30, -30, -20, -20, -10,
+            0, -10, -10, -20, -20, -10, -10, 0,
+            20, 20, 10, 0, 0, 10, 20, 20,
+        ]
+    }
+    if num_major_pieces < 4:
+        piece_square_tables[chess.KING] = [
+        -10, -10, -10, -10, -10, -10, -10, -10,
+        -10, -5, -5, -5, -5, -5, -5, -10,
+        -10, -5, 0, 0, 0, 0, -5, -10,
+        -10, -5, 0, 5, 5, 0, -5, -10,
+        -10, -5, 0, 5, 5, 0, -5, -10,
+        -10, -5, 0, 0, 0, 0, -5, -10,
+        -10, -5, -5, -5, -5, -5, -5, -10,
+        -10, -10, -10, -10, -10, -10, -10, -10,
+    ]
+
+    material_score = 0
+    for piece in board.piece_map().values():
+        if piece.color == chess.WHITE:
+            material_score += piece_values[piece.piece_type]
+
+    piece_square_bonus = 0
+    for square , piece in board.piece_map().items():
+        table = piece_square_tables[piece.piece_type]
+        if piece.color == chess.WHITE:
+            piece_square_bonus += table[square]
+
+    early_king_move_penalty = 0
+    king_moves = [move for move in board.move_stack if board.piece_at(move.from_square) and board.piece_at(move.from_square).piece_type == chess.KING]
+    if len(king_moves) > 0:
+        if board.turn:
+            early_king_move_penalty -= 30
+
+    white_early_rook_penalty = sum(-35 if board.piece_at(move.from_square) and board.piece_at(move.from_square).piece_type == chess.ROOK and len(board.move_stack) < 13 else 0 for move in board.move_stack)
+
+    white_eval = material_score + piece_square_bonus + early_king_move_penalty+white_early_rook_penalty
+
+#######################################################################################################
+
+
+    black_pawn_table = [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        5, -5, -10, 0, 0, -10, -5, 5,
+        0, 0, 0, -10, -10, 0, 0, 0,
+        5, 5, 10, 20, 20, 10, 5, 5,
+        10, 10, 20, 40, 40, 20, 10, 10,
+        30, 30, 40, 60, 60, 40, 30, 30,
+        90, 90, 90, 90, 90, 90, 90, 90,
+        0, 0, 0, 0, 0, 0, 0, 0
+    ]
+
+    black_knight_table = [
+        -50, -40, -30, -30, -30, -30, -40, -50,
+        -40, -20, 0, 0, 0, 0, -20, -40,
+        -30, 5, 10, 15, 15, 10, 5, -30,
+        -30, 5, 15, 20, 20, 15, 5, -30,
+        -30, 5, 15, 20, 20, 15, 5, -30,
+        -30, 5, 10, 15, 15, 10, 5, -30,
+        -40, -20, 0, 5, 5, 0, -20, -40,
+        -50, -40, -30, -30, -30, -30, -40, -50,
+    ]
+
+    black_bishop_table = [
+        -20, -10, -10, -10, -10, -10, -10, -20,
+        -10, 5, 0, 0, 0, 0, 5, -10,
+        -10, 10, 10, 10, 10, 10, 10, -10,
+        -10, 0, 10, 15, 15, 10, 0, -10,
+        -10, 5, 10, 15, 15, 10, 5, -10,
+        -10, 0, 10, 10, 10, 10, 0, -10,
+        -10, 0, 0, 0, 0, 0, 0, -10,
+        -20, -10, -10, -10, -10, -10, -10, -20
+    ]
+
+    black_rook_table = [
+        0, 0, 0, 5, 5, 0, 0, 0,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        5, 20, 20, 20, 20, 20, 20, 5,
+        0, 0, 0, 0, 0, 0, 0, 0,
+    ]
+
+    black_queen_table = [
+        -20, -10, -10, -5, -5, -10, -10, -20,
+        -10, 0, 5, 0, 0, 0, 0, -10,
+        -10, 5, 5, 5, 5, 5, 0, -10,
+        -5, 0, 5, 10, 10, 5, 0, -5,
+        -5, 0, 5, 10, 10, 5, 0, -5,
+        -10, 0, 5, 5, 5, 5, 0, -10,
+        -10, 0, 0, 0, 0, 0, 0, -10,
+        -20, -10, -10, -5, -5, -10, -10, -20
+    ]
+
+    black_king_table = [
+        -50, -40, -30, -20, -20, -30, -40, -50,
+        -30, -20, -10, 0, 0, -10, -20, -30,
+        -30, -10, 20, 30, 30, 20, -10, -30,
+        -30, -10, 30, 40, 40, 30, -10, -30,
+        -30, -10, 30, 40, 40, 30, -10, -30,
+        -30, -10, 20, 30, 30, 20, -10, -30,
+        -30, -30, 0, 0, 0, 0, -30, -30,
+        -50, -30, -30, -30, -30, -30, -30, -50
+    ]
+
+###################################################################################################################################################
+
+def evaluate_board(board):
+    piece_values = {chess.PAWN: 100, chess.KNIGHT: 320, chess.BISHOP: 330,chess.ROOK: 500, chess.QUEEN: 900, chess.KING: 20000}
+
+    black_pawn_table = [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        5, -5, -10, 0, 0, -10, -5, 5,
+        0, 0, 0, -10, -10, 0, 0, 0,
+        5, 5, 10, 20, 20, 10, 5, 5,
+        10, 10, 20, 40, 40, 20, 10, 10,
+        30, 30, 40, 60, 60, 40, 30, 30,
+        90, 90, 90, 90, 90, 90, 90, 90,
+        0, 0, 0, 0, 0, 0, 0, 0
+    ]
+
+    black_knight_table = [
+        -50, -40, -30, -30, -30, -30, -40, -50,
+        -40, -20, 0, 0, 0, 0, -20, -40,
+        -30, 5, 10, 15, 15, 10, 5, -30,
+        -30, 5, 15, 20, 20, 15, 5, -30,
+        -30, 5, 15, 20, 20, 15, 5, -30,
+        -30, 5, 10, 15, 15, 10, 5, -30,
+        -40, -20, 0, 5, 5, 0, -20, -40,
+        -50, -40, -30, -30, -30, -30, -40, -50,
+    ]
+
+    black_bishop_table = [
+        -20, -10, -10, -10, -10, -10, -10, -20,
+        -10, 5, 0, 0, 0, 0, 5, -10,
+        -10, 10, 10, 10, 10, 10, 10, -10,
+        -10, 0, 10, 15, 15, 10, 0, -10,
+        -10, 5, 10, 15, 15, 10, 5, -10,
+        -10, 0, 10, 10, 10, 10, 0, -10,
+        -10, 0, 0, 0, 0, 0, 0, -10,
+        -20, -10, -10, -10, -10, -10, -10, -20
+    ]
+
+    black_rook_table = [
+        0, 0, 0, 5, 5, 0, 0, 0,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        5, 20, 20, 20, 20, 20, 20, 5,
+        0, 0, 0, 0, 0, 0, 0, 0,
+    ]
+
+    black_queen_table = [
+        -20, -10, -10, -5, -5, -10, -10, -20,
+        -10, 0, 5, 0, 0, 0, 0, -10,
+        -10, 5, 5, 5, 5, 5, 0, -10,
+        -5, 0, 5, 10, 10, 5, 0, -5,
+        -5, 0, 5, 10, 10, 5, 0, -5,
+        -10, 0, 5, 5, 5, 5, 0, -10,
+        -10, 0, 0, 0, 0, 0, 0, -10,
+        -20, -10, -10, -5, -5, -10, -10, -20
+    ]
+
+    black_king_table = [
+        -50, -40, -30, -20, -20, -30, -40, -50,
+        -30, -20, -10, 0, 0, -10, -20, -30,
+        -30, -10, 20, 30, 30, 20, -10, -30,
+        -30, -10, 30, 40, 40, 30, -10, -30,
+        -30, -10, 30, 40, 40, 30, -10, -30,
+        -30, -10, 20, 30, 30, 20, -10, -30,
+        -30, -30, 0, 0, 0, 0, -30, -30,
+        -50, -30, -30, -30, -30, -30, -30, -50
+    ]
+    white_pawn_table = [
+        0,  0,  0,  0,  0,  0,  0,  0,
+        10, 10, 10, 10, 10, 10, 10, 10,
+        0, 40,  0,  5,  5,  0, 40,  0,
+        10, 10, 20, 60, 60, 20, 10, 10,
+        5,  5,  10, 20, 20, 10,  5, 5,
+       -5,  0,  0, -10, -10, 0,  0, -5,
+        5, -5, -10, 0,  0, -10, -5, 5,
+        0,  0,  0,  0,  0,  0,  0,  0
+    ]
+
+    white_knight_table = [
+        -50, -40, -30, -30, -30, -30, -40, -50,
+        -40, -20, 0, 5, 5, 0, -20, -40,
+        -30, 5, 10, 15, 15, 10, 5, -30,
+        -30, 5, 15, 20, 20, 15, 5, -30,
+        -30, 5, 15, 20, 20, 15, 5, -30,
+        -30, 5, 10, 15, 15, 10, 5, -30,
+        -40, -20, 0, 0, 0, 0, -20, -40,
+        -50, -40, -30, -30, -30, -30, -40, -50
+    ]
+
+    white_bishop_table = [
+        -20, -10, -10, -10, -10, -10, -10, -20,
+        -10, 0, 0, 0, 0, 0, 0, -10,
+        -10, 0, 5, 10, 10, 5, 0, -10,
+        -10, 5, 5, 10, 10, 5, 5, -10,
+        -10, 0, 10, 15, 15, 10, 0, -10,
+        -10, 10, 10, 10, 10, 10, 10, -10,
+        -10, 5, 0, 0, 0, 0, 5, -10,
+        -20, -10, -10, -10, -10, -10, -10, -20
+    ]
+
+    white_rook_table = [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        5, 20, 20, 20, 20, 20, 20, 5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        0, 0, 0, 5, 5, 0, 0, 0
+    ]
+
+    white_queen_table = [
+        -20, -10, -10, -5, -5, -10, -10, -20,
+        -10, 0, 0, 0, 0, 0, 0, -10,
+        -10, 0, 5, 5, 5, 5, 0, -10,
+        -5, 0, 5, 10, 10, 5, 0, -5,
+        -5, 0, 5, 10, 10, 5, 0, -5,
+        -10, 0, 5, 5, 5, 5, 0, -10,
+        -10, 0, 0, 0, 0, 0, 0, -10,
+        -20, -10, -10, -5, -5, -10, -10, -20
+    ]
+
+    white_king_table = [
+        -50, -30, -30, -30, -30, -30, -30, -50,
+        -30, -30, 0, 0, 0, 0, -30, -30,
+        -30, -10, 20, 30, 30, 20, -10, -30,
+        -30, -10, 30, 40, 40, 30, -10, -30,
+        -30, -10, 30, 40, 40, 30, -10, -30,
+        -30, -10, 20, 30, 30, 20, -10, -30,
+        -30, -20, -10, 0, 0, -10, -20, -30,
+        -50, -40, -30, -20, -20, -30, -40, -50
+    ]
+
+    value = 0
+    for square in chess.SQUARES:
+        piece1 = board.piece_at(square)
+        if piece1:
+            if piece1.color == chess.WHITE:
+                value += piece_values[piece1.piece_type]
+
+                if piece1.piece_type == chess.PAWN:
+                    value += white_pawn_table[square]
+                elif piece1.piece_type == chess.KNIGHT:
+                    value += white_knight_table[square]
+                elif piece1.piece_type == chess.BISHOP:
+                    value += black_bishop_table[square]
+                elif piece1.piece_type == chess.ROOK:
+                    value += white_rook_table[square]
+                elif piece1.piece_type == chess.QUEEN:
+                    value += white_queen_table[square]
+                elif piece1.piece_type == chess.KING:
+                    value += white_king_table[square]
+
+            if piece1.color == chess.BLACK:
+                value -= piece_values[piece1.piece_type]
+
+                if piece1.piece_type == chess.PAWN:
+                    value -= white_pawn_table[square]
+                if piece1.piece_type == chess.KNIGHT:
+                    value -= black_knight_table[chess.square_mirror(square)]
+                if piece1.piece_type == chess.BISHOP:
+                    value -= black_bishop_table[chess.square_mirror(square)]
+                if piece1.piece_type == chess.ROOK:
+                    value -= black_rook_table[chess.square_mirror(square)]
+                if piece1.piece_type == chess.QUEEN:
+                    value -= black_queen_table[chess.square_mirror(square)]
+                if piece1.piece_type == chess.KING:
+                    value -= black_king_table[chess.square_mirror(square)]
+
+    value += 10*len(list(board.legal_moves)) if board.turn == chess.WHITE else -10*len(list(board.legal_moves))
+
+    if board.is_checkmate():
+        return float('inf') if board.turn == chess.WHITE else float('-inf')
+
+    return value
+
+#######################################################################################################################################################
+
+
+
+def evaluate_board(board):
+    piece_values = {chess.PAWN: 100, chess.KNIGHT: 320, chess.BISHOP: 330,chess.ROOK: 500, chess.QUEEN: 900, chess.KING: 20000}
+
+    if board.is_checkmate():
+        return float('inf') if board.turn == chess.WHITE else float('-inf')
+
+    black_pawn_table = [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        5, -5, -10, 0, 0, -10, -5, 5,
+        0, 0, 0, -10, -10, 0, 0, 0,
+        5, 5, 10, 20, 20, 10, 5, 5,
+        10, 10, 20, 40, 40, 20, 10, 10,
+        30, 30, 40, 60, 60, 40, 30, 30,
+        90, 90, 90, 90, 90, 90, 90, 90,
+        0, 0, 0, 0, 0, 0, 0, 0
+    ]
+
+    black_knight_table = [
+        -50, -40, -30, -30, -30, -30, -40, -50,
+        -40, -20, 0, 0, 0, 0, -20, -40,
+        -30, 5, 10, 15, 15, 10, 5, -30,
+        -30, 5, 15, 20, 20, 15, 5, -30,
+        -30, 5, 15, 20, 20, 15, 5, -30,
+        -30, 5, 10, 15, 15, 10, 5, -30,
+        -40, -20, 0, 5, 5, 0, -20, -40,
+        -50, -40, -30, -30, -30, -30, -40, -50,
+    ]
+
+    black_bishop_table = [
+        -20, -10, -10, -10, -10, -10, -10, -20,
+        -10, 5, 0, 0, 0, 0, 5, -10,
+        -10, 10, 10, 10, 10, 10, 10, -10,
+        -10, 0, 10, 15, 15, 10, 0, -10,
+        -10, 5, 10, 15, 15, 10, 5, -10,
+        -10, 0, 10, 10, 10, 10, 0, -10,
+        -10, 0, 0, 0, 0, 0, 0, -10,
+        -20, -10, -10, -10, -10, -10, -10, -20
+    ]
+
+    black_rook_table = [
+        0, 0, 0, 5, 5, 0, 0, 0,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        5, 20, 20, 20, 20, 20, 20, 5,
+        0, 0, 0, 0, 0, 0, 0, 0,
+    ]
+
+    black_queen_table = [
+        -20, -10, -10, -5, -5, -10, -10, -20,
+        -10, 0, 5, 0, 0, 0, 0, -10,
+        -10, 5, 5, 5, 5, 5, 0, -10,
+        -5, 0, 5, 10, 10, 5, 0, -5,
+        -5, 0, 5, 10, 10, 5, 0, -5,
+        -10, 0, 5, 5, 5, 5, 0, -10,
+        -10, 0, 0, 0, 0, 0, 0, -10,
+        -20, -10, -10, -5, -5, -10, -10, -20
+    ]
+
+    black_king_table = [
+        -50, -40, -30, -20, -20, -30, -40, -50,
+        -30, -20, -10, 0, 0, -10, -20, -30,
+        -30, -10, 20, 30, 30, 20, -10, -30,
+        -30, -10, 30, 40, 40, 30, -10, -30,
+        -30, -10, 30, 40, 40, 30, -10, -30,
+        -30, -10, 20, 30, 30, 20, -10, -30,
+        -30, -30, 0, 0, 0, 0, -30, -30,
+        -50, -30, -30, -30, -30, -30, -30, -50
+    ]
+    white_pawn_table = [
+        0,  0,  0,  0,  0,  0,  0,  0,
+        10, 10, 10, 10, 10, 10, 10, 10,
+        0, 40,  0,  5,  5,  0, 40,  0,
+        10, 10, 20, 60, 60, 20, 10, 10,
+        5,  5,  10, 20, 20, 10,  5, 5,
+       -5,  0,  0, -10, -10, 0,  0, -5,
+        5, -5, -10, 0,  0, -10, -5, 5,
+        0,  0,  0,  0,  0,  0,  0,  0
+    ]
+
+    white_knight_table = [
+        -50, -40, -30, -30, -30, -30, -40, -50,
+        -40, -20, 0, 5, 5, 0, -20, -40,
+        -30, 5, 10, 15, 15, 10, 5, -30,
+        -30, 5, 15, 20, 20, 15, 5, -30,
+        -30, 5, 15, 20, 20, 15, 5, -30,
+        -30, 5, 10, 15, 15, 10, 5, -30,
+        -40, -20, 0, 0, 0, 0, -20, -40,
+        -50, -40, -30, -30, -30, -30, -40, -50
+    ]
+
+    white_bishop_table = [
+        -20, -10, -10, -10, -10, -10, -10, -20,
+        -10, 0, 0, 0, 0, 0, 0, -10,
+        -10, 0, 5, 10, 10, 5, 0, -10,
+        -10, 5, 5, 10, 10, 5, 5, -10,
+        -10, 0, 10, 15, 15, 10, 0, -10,
+        -10, 10, 10, 10, 10, 10, 10, -10,
+        -10, 5, 0, 0, 0, 0, 5, -10,
+        -20, -10, -10, -10, -10, -10, -10, -20
+    ]
+
+    white_rook_table = [
+        0, 0, 0, 0, 0, 0, 0, 0,
+        5, 20, 20, 20, 20, 20, 20, 5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        -5, 0, 0, 0, 0, 0, 0, -5,
+        0, 0, 0, 5, 5, 0, 0, 0
+    ]
+
+    white_queen_table = [
+        -20, -10, -10, -5, -5, -10, -10, -20,
+        -10, 0, 0, 0, 0, 0, 0, -10,
+        -10, 0, 5, 5, 5, 5, 0, -10,
+        -5, 0, 5, 10, 10, 5, 0, -5,
+        -5, 0, 5, 10, 10, 5, 0, -5,
+        -10, 0, 5, 5, 5, 5, 0, -10,
+        -10, 0, 0, 0, 0, 0, 0, -10,
+        -20, -10, -10, -5, -5, -10, -10, -20
+    ]
+
+    white_king_table = [
+        -50, -30, -30, -30, -30, -30, -30, -50,
+        -30, -30, 0, 0, 0, 0, -30, -30,
+        -30, -10, 20, 30, 30, 20, -10, -30,
+        -30, -10, 30, 40, 40, 30, -10, -30,
+        -30, -10, 30, 40, 40, 30, -10, -30,
+        -30, -10, 20, 30, 30, 20, -10, -30,
+        -30, -20, -10, 0, 0, -10, -20, -30,
+        -50, -40, -30, -20, -20, -30, -40, -50
+    ]
+
+    def king_safety(square):
+        return -10 * len(list(board.attacks(square)))
+
+    value = 0
+    piece_count = 0
+
+    for square in chess.SQUARES:
+        piece = board.piece_at(square)
+        if piece:
+            piece_count += 1
+            piece_value = piece_values[piece.piece_type]
+            if piece.piece_type == chess.PAWN:
+                advancement_bonus = 10 * chess.square_rank(square) if piece.color == chess.WHITE else -10 * (7 - chess.square_rank(square))
+            else:
+                advancement_bonus = 0
+
+            king_safety_penalty = king_safety(square) if piece.piece_type == chess.KING else 0
+
+            if piece.color == chess.WHITE:
+                value += piece_value + advancement_bonus + king_safety_penalty
+            else:
+                value -= piece_value + advancement_bonus + king_safety_penalty
+
+    legal_moves = len(list(board.legal_moves))
+    value += 3 * legal_moves if board.turn == chess.WHITE else -3 * legal_moves
+
+    if piece_count < 10:
+        value += 20 if board.turn == chess.WHITE else -20
+
+    for square in chess.SQUARES:
+        piece1 = board.piece_at(square)
+        if piece1:
+            if piece1.color == chess.WHITE:
+                value += piece_values[piece1.piece_type]
+
+                if piece1.piece_type == chess.PAWN:
+                    value += white_pawn_table[square]
+                elif piece1.piece_type == chess.KNIGHT:
+                    value += white_knight_table[square]
+                elif piece1.piece_type == chess.BISHOP:
+                    value += white_bishop_table[square]
+                elif piece1.piece_type == chess.ROOK:
+                    value += white_rook_table[square]
+                elif piece1.piece_type == chess.QUEEN:
+                    value += white_queen_table[square]
+                elif piece1.piece_type == chess.KING:
+                    value += white_king_table[square]
+
+            else:
+                value -= piece_values[piece1.piece_type]
+
+                if piece1.piece_type == chess.PAWN:
+                    value -= black_pawn_table[chess.square_mirror(square)]
+                elif piece1.piece_type == chess.KNIGHT:
+                    value -= black_knight_table[chess.square_mirror(square)]
+                elif piece1.piece_type == chess.BISHOP:
+                    value -= black_bishop_table[chess.square_mirror(square)]
+                elif piece1.piece_type == chess.ROOK:
+                    value -= black_rook_table[chess.square_mirror(square)]
+                elif piece1.piece_type == chess.QUEEN:
+                    value -= black_queen_table[chess.square_mirror(square)]
+                elif piece1.piece_type == chess.KING:
+                    value -= black_king_table[chess.square_mirror(square)]
+
+    value += 3 * len(list(board.legal_moves)) if board.turn == chess.WHITE else -3 * len(list(board.legal_moves))
+
+    return value
+
+############################################################################################################################################
+
+def minimax(board, depth, alpha, beta, maximizing):
+    if depth == 0 or board.is_game_over():
+        return chess_bot.evaluate(board),None
+
+    best_move = None
+    if maximizing:
+        max_eval = float('-inf')
+        for move in board.legal_moves:
+            board.push(move)
+            eval, _ = minimax(board, depth - 1, alpha, beta, False)
+            if board.is_checkmate():
+                board.pop()
+                return eval,move
+            board.pop()
+            if eval > max_eval:
+                max_eval = eval
+                best_move = move
+            alpha = max(alpha, eval)
+            if beta <= alpha:
+                break
+        return max_eval, best_move
+    else:
+        min_eval = float('inf')
+        for move in board.legal_moves:
+            board.push(move)
+            eval, _ = minimax(board, depth - 1, alpha, beta, True)
+            if board.is_checkmate():
+                print("ariel")
+                board.pop()
+                return eval,move
+            board.pop()
+            if eval < min_eval:
+                min_eval = eval
+                best_move = move
+            beta = min(beta, eval)
+            if beta <= alpha:
+                break
+        return min_eval, best_move
