@@ -3,7 +3,7 @@ import random
 
 class Bot:
     def __init__(self):
-        self.piece_values = {chess.PAWN: 100,chess.KNIGHT: 320,chess.BISHOP: 330,chess.ROOK: 500,chess.QUEEN: 900,chess.KING: 20000}
+        self.piece_values = {chess.PAWN: 75,chess.KNIGHT: 320,chess.BISHOP: 330,chess.ROOK: 500,chess.QUEEN: 900,chess.KING: 20000}
 
         self.white_pawn_table = [
             0, 0, 0, 0, 0, 0, 0, 0,
@@ -195,4 +195,3 @@ class Bot:
                 return random.choice(list(board.legal_moves))
             else:
                 print("no legal moves")
-#2

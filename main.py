@@ -2,63 +2,19 @@ from time import sleep
 import pygame
 import chess
 import pyautogui
-import tkinter as tk
 import bot
 import config
+import GameStates
+import MainScreen
 
-def on_close():
-    global autoplay_online_bool, analysis, autoplay_bool, custom_board_bool,bot_vs_bot,player_color
-    autoplay_online_bool = autoplay_online_bool.get()
-    analysis = analysis.get()
-    autoplay_bool = autoplay_bool.get()
-    custom_board_bool = custom_board_bool.get()
-    bot_vs_bot = bot_vs_bot.get()
-    player_color = player_color.get()
-    root.destroy()
-
-root = tk.Tk()
-
-autoplay_online_bool = tk.BooleanVar(value=False)
-analysis = tk.BooleanVar(value=False)
-autoplay_bool = tk.BooleanVar(value=False)
-custom_board_bool = tk.BooleanVar(value=False)
-bot_vs_bot = tk.BooleanVar(value=False)
-player_color = tk.BooleanVar(value=False)
-
-player_color_label = tk.Label(root,text="check this to be the white pieces")
-player_color_label.pack()
-check_player_color = tk.Checkbutton(root,text="color",variable=player_color)
-check_player_color.pack(pady=5)
-
-autoplay_online_label = tk.Label(root, text="enable bot to move pieces on chess.com")
-autoplay_online_label.pack()
-check_autoplay_online = tk.Checkbutton(root, text="Autoplay Online", variable=autoplay_online_bool)
-check_autoplay_online.pack(pady=5)
-
-analysis_label = tk.Label(root, text="makes the bot play in the analysis mode of chess.com")
-analysis_label.pack()
-check_analysis = tk.Checkbutton(root, text="Analysis", variable=analysis)
-check_analysis.pack(pady=5)
-
-autoplay_label = tk.Label(root, text="the bot will play on the pygame screen automatically")
-autoplay_label.pack()
-check_autoplay = tk.Checkbutton(root, text="Autoplay", variable=autoplay_bool)
-check_autoplay.pack(pady=5)
-
-custom_board_label = tk.Label(root, text="click this to create a custom board")
-custom_board_label.pack()
-check_custom_board = tk.Checkbutton(root, text="custom Board", variable=custom_board_bool)
-check_custom_board.pack(pady=5)
-
-bot_vs_bot_label = tk.Label(root,text="click this if you want the bot to play against it self(it doesnt work yet)")
-bot_vs_bot_label.pack()
-check_bot_vs_bot = tk.Checkbutton(root,text="bot vs bot",variable=bot_vs_bot)
-check_bot_vs_bot.pack(pady=5)
-
-root.protocol("WM_DELETE_WINDOW", on_close)
-root.mainloop()
-
-print(autoplay_online_bool,autoplay_bool,analysis,custom_board_bool,bot_vs_bot)
+main_screen = MainScreen.MainScreen()
+player_color = main_screen.settings['player_color']
+bot_vs_bot = main_screen.settings['bot_vs_bot']
+custom_board_bool = main_screen.settings['custom_board_bool']
+autoplay_bool = main_screen.settings['autoplay_bool']
+analysis = main_screen.settings['analysis']
+autoplay_online_bool = main_screen.settings['autoplay_online_bool']
+print(player_color)
 pygame.init()
 
 PIECE_IMAGES = {}
@@ -152,7 +108,7 @@ flipped = player_color
 counter = 0
 moves_played = []
 
-while running and custom_board_bool:
+while running:
     draw_board(flipped)
     draw_pieces(flipped)
     pygame.display.flip()
@@ -386,11 +342,9 @@ while running and bot_vs_bot:
                         print(best_move)
         else:
             board.push(best_move)
-            print(moves)
         sleep(0.05)
         moves_played.append(best_move)
         if autoplay_online_bool:
             autoplay_online(best_move,analysis)
 print(uci_to_pgn(moves))
 pygame.quit()
-#1
