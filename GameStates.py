@@ -55,7 +55,7 @@ class CustomBoardEditor:
 
     def get_square_from_pos(self, pos):
         x, y = pos
-        square_size = 80  # or however your board is scaled
+        square_size = 100
         row = y // square_size
         col = x // square_size
         if self.flipped:
