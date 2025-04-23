@@ -393,3 +393,4 @@ while running and bot_vs_bot:
             autoplay_online(best_move,analysis)
 print(uci_to_pgn(moves))
 pygame.quit()
+#1

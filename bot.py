@@ -195,3 +195,4 @@ class Bot:
                 return random.choice(list(board.legal_moves))
             else:
                 print("no legal moves")
+#2
