@@ -1,7 +1,7 @@
 import pygame
 import chess
 
-class CustomBoardEditor:
+class CustomBoard:
     def __init__(self, board, flipped=False):
         self.board = board
         self.flipped = flipped
