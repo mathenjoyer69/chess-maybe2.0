@@ -1,6 +1,7 @@
 import pygame
 import chess
 import config
+import functions
 
 class CustomBoard:
     def __init__(self, board, flipped):
