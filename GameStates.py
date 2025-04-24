@@ -73,9 +73,7 @@ class CustomBoard:
                 color = config.LIGHT_BROWN if (row + col) % 2 == 0 else config.DARK_BROWN
                 actual_row = 7 - row if self.flipped else row
                 actual_col = 7 - col if self.flipped else col
-                pygame.draw.rect(config.screen, color, (
-                actual_col * config.SQUARE_SIZE, actual_row * config.SQUARE_SIZE, config.SQUARE_SIZE,
-                config.SQUARE_SIZE))
+                pygame.draw.rect(config.screen, color, (actual_col * config.SQUARE_SIZE, actual_row * config.SQUARE_SIZE, config.SQUARE_SIZE, config.SQUARE_SIZE))
 
     def draw_pieces(self):
         for row in range(config.ROWS):
@@ -111,9 +109,7 @@ class NormalGame:
                 color = config.LIGHT_BROWN if (row + col) % 2 == 0 else config.DARK_BROWN
                 actual_row = 7 - row if self.flipped else row
                 actual_col = 7 - col if self.flipped else col
-                pygame.draw.rect(config.screen, color, (
-                actual_col * config.SQUARE_SIZE, actual_row * config.SQUARE_SIZE, config.SQUARE_SIZE,
-                config.SQUARE_SIZE))
+                pygame.draw.rect(config.screen, color, (actual_col * config.SQUARE_SIZE, actual_row * config.SQUARE_SIZE, config.SQUARE_SIZE, config.SQUARE_SIZE))
 
     def draw_pieces(self):
         for row in range(config.ROWS):
