@@ -64,9 +64,7 @@ class CustomBoard:
         return row, col
 
     def draw_board(self):
-        # Replace with your draw_board logic
         draw_board(self.flipped)
 
     def draw_pieces(self):
-        # Replace with your draw_pieces logic
         draw_pieces(self.flipped)
