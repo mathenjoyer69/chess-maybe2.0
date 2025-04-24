@@ -1,8 +1,9 @@
 import pygame
 import chess
+import config
 
 class CustomBoard:
-    def __init__(self, board, flipped=False):
+    def __init__(self, board, flipped):
         self.board = board
         self.flipped = flipped
         self.selected_square = None
@@ -29,7 +30,7 @@ class CustomBoard:
 
     def handle_keydown(self, event):
         if self.selected_square is None:
-            print("Select a square first 😡")
+            print("select a square first 😡")
             return
 
         is_shift_pressed = pygame.key.get_mods() & pygame.KMOD_SHIFT
@@ -60,11 +61,34 @@ class CustomBoard:
         col = x // square_size
         if self.flipped:
             row = 7 - row
+            col = col
+        else:
             col = 7 - col
+            row = row
         return row, col
 
     def draw_board(self):
-        draw_board(self.flipped)
+        for row in range(config.ROWS):
+            for col in range(config.COLS):
+                color = config.LIGHT_BROWN if (row + col) % 2 == 0 else config.DARK_BROWN
+                actual_row = 7 - row if self.flipped else row
+                actual_col = 7 - col if self.flipped else col
+                pygame.draw.rect(config.screen, color, (
+                actual_col * config.SQUARE_SIZE, actual_row * config.SQUARE_SIZE, config.SQUARE_SIZE,
+                config.SQUARE_SIZE))
 
     def draw_pieces(self):
-        draw_pieces(self.flipped)
+        for row in range(config.ROWS):
+            for col in range(config.COLS):
+                actual_row = 7 - row if self.flipped else row
+                actual_col = 7 - col if not self.flipped else col
+
+                square = chess.square(actual_col, actual_row)
+                piece = self.board.piece_at(square)
+                if piece:
+                    piece_symbol = piece.symbol()
+                    config.screen.blit(config.PIECE_IMAGES[piece_symbol], (col * config.SQUARE_SIZE, row * config.SQUARE_SIZE))
+
+class NormalGame:
+    def __init__(self, flipped):
+        self.flipped = flipped

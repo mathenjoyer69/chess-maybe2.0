@@ -991,3 +991,40 @@ root.protocol("WM_DELETE_WINDOW", on_close)
 root.mainloop()
 
 print(autoplay_online_bool,autoplay_bool,analysis,custom_board_bool,bot_vs_bot)
+
+
+####################################################################################################
+
+
+while running and custom_board_bool:
+    draw_board(flipped)
+    draw_pieces(flipped)
+    pygame.display.flip()
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            row, col = get_square_from_pos(pygame.mouse.get_pos(), flipped)
+            selected_square = chess.square(col, row)
+        elif event.type == pygame.KEYDOWN:
+            if selected_square is not None:
+                is_shift_pressed = pygame.key.get_mods() & pygame.KMOD_SHIFT
+                piece_color = chess.BLACK if is_shift_pressed else chess.WHITE
+                if event.key == pygame.K_p:
+                    board.set_piece_at(selected_square, chess.Piece(chess.PAWN, piece_color))
+                elif event.key == pygame.K_r:
+                    board.set_piece_at(selected_square, chess.Piece(chess.ROOK, piece_color))
+                elif event.key == pygame.K_n:
+                    board.set_piece_at(selected_square, chess.Piece(chess.KNIGHT, piece_color))
+                elif event.key == pygame.K_b:
+                    board.set_piece_at(selected_square, chess.Piece(chess.BISHOP, piece_color))
+                elif event.key == pygame.K_q:
+                    board.set_piece_at(selected_square, chess.Piece(chess.QUEEN, piece_color))
+                elif event.key == pygame.K_k:
+                    board.set_piece_at(selected_square, chess.Piece(chess.KING, piece_color))
+                elif event.key == pygame.K_BACKSPACE:
+                    board.remove_piece_at(selected_square)
+                elif event.key == pygame.K_SPACE:
+                    custom_board_bool = False
+            else:
+                print("select a square first😡")

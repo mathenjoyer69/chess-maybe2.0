@@ -2,6 +2,8 @@ from time import sleep
 import pygame
 import chess
 import pyautogui
+
+import GameStates
 import bot
 import config
 import MainScreen
@@ -17,16 +19,11 @@ autoplay_online_bool = main_screen.settings['autoplay_online_bool']
 print(player_color)
 pygame.init()
 
-PIECE_IMAGES = {}
-
-PIECES = {'p': 'bp.png', 'r': 'br.png', 'n': 'bn.png', 'b': 'bb.png', 'q': 'bq.png', 'k': 'bk.png', 'P': 'p.png', 'R': 'r.png', 'N': 'n.png', 'B': 'b.png', 'Q': 'q.png', 'K': 'k.png'}
-
-for piece, filename in PIECES.items():
-    PIECE_IMAGES[piece] = pygame.image.load(f'assets/{filename}')
-    PIECE_IMAGES[piece] = pygame.transform.scale(PIECE_IMAGES[piece], (config.SQUARE_SIZE, config.SQUARE_SIZE))
+for piece, filename in config.PIECES.items():
+    config.PIECE_IMAGES[piece] = pygame.image.load(f'assets/{filename}')
+    config.PIECE_IMAGES[piece] = pygame.transform.scale(config.PIECE_IMAGES[piece], (config.SQUARE_SIZE, config.SQUARE_SIZE))
 
 board = chess.Board() if not custom_board_bool else chess.Board(None)
-screen = pygame.display.set_mode((config.WIDTH, config.HEIGHT))
 
 def draw_board(flipped):
     for row in range(config.ROWS):
@@ -34,7 +31,7 @@ def draw_board(flipped):
             color = config.LIGHT_BROWN if (row + col) % 2 == 0 else config.DARK_BROWN
             actual_row = 7 - row if flipped else row
             actual_col = 7 - col if flipped else col
-            pygame.draw.rect(screen, color,(actual_col * config.SQUARE_SIZE, actual_row * config.SQUARE_SIZE, config.SQUARE_SIZE, config.SQUARE_SIZE))
+            pygame.draw.rect(config.screen, color,(actual_col * config.SQUARE_SIZE, actual_row * config.SQUARE_SIZE, config.SQUARE_SIZE, config.SQUARE_SIZE))
 
 
 def draw_pieces(flipped):
@@ -47,7 +44,7 @@ def draw_pieces(flipped):
             piece = board.piece_at(square)
             if piece:
                 piece_symbol = piece.symbol()
-                screen.blit(PIECE_IMAGES[piece_symbol], (col * config.SQUARE_SIZE, row * config.SQUARE_SIZE))
+                config.screen.blit(config.PIECE_IMAGES[piece_symbol], (col * config.SQUARE_SIZE, row * config.SQUARE_SIZE))
 
 
 def get_square_from_pos(pos, flipped):
@@ -103,39 +100,9 @@ flipped = player_color
 
 counter = 0
 moves_played = []
-
-while running and custom_board_bool:
-    draw_board(flipped)
-    draw_pieces(flipped)
-    pygame.display.flip()
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            row, col = get_square_from_pos(pygame.mouse.get_pos(), flipped)
-            selected_square = chess.square(col, row)
-        elif event.type == pygame.KEYDOWN:
-            if selected_square is not None:
-                is_shift_pressed = pygame.key.get_mods() & pygame.KMOD_SHIFT
-                piece_color = chess.BLACK if is_shift_pressed else chess.WHITE
-                if event.key == pygame.K_p:
-                    board.set_piece_at(selected_square, chess.Piece(chess.PAWN, piece_color))
-                elif event.key == pygame.K_r:
-                    board.set_piece_at(selected_square, chess.Piece(chess.ROOK, piece_color))
-                elif event.key == pygame.K_n:
-                    board.set_piece_at(selected_square, chess.Piece(chess.KNIGHT, piece_color))
-                elif event.key == pygame.K_b:
-                    board.set_piece_at(selected_square, chess.Piece(chess.BISHOP, piece_color))
-                elif event.key == pygame.K_q:
-                    board.set_piece_at(selected_square, chess.Piece(chess.QUEEN, piece_color))
-                elif event.key == pygame.K_k:
-                    board.set_piece_at(selected_square, chess.Piece(chess.KING, piece_color))
-                elif event.key == pygame.K_BACKSPACE:
-                    board.remove_piece_at(selected_square)
-                elif event.key == pygame.K_SPACE:
-                    custom_board_bool = False
-            else:
-                print("select a square first😡")
+if custom_board_bool:
+    custom_board = GameStates.CustomBoard(board, flipped)
+    custom_board.run()
 
 moves1 = []
 while running and not autoplay_online_bool and not custom_board_bool and not bot_vs_bot:
