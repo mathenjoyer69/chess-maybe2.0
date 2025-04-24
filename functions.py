@@ -1,10 +1,10 @@
 import config
 import chess
-from main import board
 
 class Functions:
-    def __init__(self, flipped):
+    def __init__(self, board, flipped):
         self.flipped = flipped
+        self.board = board
 
     def draw_pieces(self):
         for row in range(config.ROWS):
@@ -13,7 +13,7 @@ class Functions:
                 actual_col = 7 - col if not self.flipped else col
 
                 square = chess.square(actual_col, actual_row)
-                piece = board.piece_at(square)
+                piece = self.board.piece_at(square)
                 if piece:
                     piece_symbol = piece.symbol()
                     config.screen.blit(config.PIECE_IMAGES[piece_symbol], (col * config.SQUARE_SIZE, row * config.SQUARE_SIZE))

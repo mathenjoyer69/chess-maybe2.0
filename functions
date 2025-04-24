@@ -1028,3 +1028,86 @@ while running and custom_board_bool:
                     custom_board_bool = False
             else:
                 print("select a square first😡")
+
+##############################################################################################
+
+while running and not autoplay_online_bool and not custom_board_bool and not bot_vs_bot:
+    keys = pygame.key.get_pressed()
+    draw_board(flipped)
+    draw_pieces(flipped)
+    pygame.display.flip()
+    if not player_color and autoplay_bool:
+        bot_move = chess_bot.get_best_move(board)
+        board.push(bot_move)
+        player_color = not player_color
+        moves1.append(bot_move)
+
+    if not board.legal_moves:
+        running = False
+        if not board.is_check():
+            print("draw")
+            break
+        if counter % 2 == 0:
+            print("black won")
+            break
+        else:
+            print("white won")
+            break
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            row, col = get_square_from_pos(pygame.mouse.get_pos(), flipped)
+            square = chess.square(col, row)
+            print(square)
+            if selected_square is None:
+                if board.piece_at(square):
+                    selected_square = square
+            else:
+                if board.piece_at(selected_square) and board.piece_at(selected_square).piece_type == chess.PAWN:
+                    if chess.square_rank(square) == 7 or chess.square_rank(square) == 0:
+                        move = chess.Move(selected_square, square, promotion=chess.QUEEN)
+                    else:
+                        move = chess.Move(selected_square, square)
+                else:
+                    move = chess.Move(selected_square, square)
+                if move in board.legal_moves:
+                    board.push(move)
+                    moves1.append(move)
+                    moves_played.append(move)
+                    print(move)
+                    flipped = not flipped
+                    counter += 1
+                else:
+                    print("illegal move")
+                selected_square = None
+            print(f"you clicked {board.piece_at(square)}")
+        elif event.type == pygame.KEYDOWN and not autoplay_bool:
+            if event.key == pygame.K_SPACE:
+                if counter % 2 != 0:
+                    best_move = chess_bot.get_best_move(board)
+                    board.push(best_move)
+                    moves1.append(best_move)
+                    print(f"ai chose: {best_move}")
+                else:
+                    print("its white's turn")
+                    best_move = chess_bot.get_best_move(board)
+                    board.push(best_move)
+            elif event.key == pygame.K_d:
+                autoplay_bool = not autoplay_bool
+                print("autoplay on")
+            elif event.key == pygame.K_a:
+                autoplay_online_bool = not autoplay_online_bool
+                autoplay_bool = True
+                print("autoplay online on")
+        if autoplay_bool:
+            if counter % 2 != 0:
+                best_move = chess_bot.get_best_move(board)
+                print(best_move)
+                if board.legal_moves:
+                    counter += 1
+                    board.push(best_move)
+                    moves1.append(best_move)
+                    moves_played.append(best_move)
+                flipped = not flipped

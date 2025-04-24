@@ -15,7 +15,7 @@ custom_board_bool = main_screen.settings['custom_board_bool']
 autoplay_bool = main_screen.settings['autoplay_bool']
 analysis = main_screen.settings['analysis']
 autoplay_online_bool = main_screen.settings['autoplay_online_bool']
-print(player_color)
+
 pygame.init()
 
 for piece, filename in config.PIECES.items():
@@ -89,88 +89,9 @@ if custom_board_bool:
     custom_board.run()
 
 moves1 = []
-while running and not autoplay_online_bool and not custom_board_bool and not bot_vs_bot:
-    keys = pygame.key.get_pressed()
-    draw_board(flipped)
-    draw_pieces(flipped)
-    pygame.display.flip()
-    if not player_color and autoplay_bool:
-        ai_move = chess_bot.get_best_move(board)
-        board.push(ai_move)
-        player_color = not player_color
-        moves1.append(ai_move)
+if running and not autoplay_online_bool and not custom_board_bool and not bot_vs_bot:
+    GameStates.NormalGame(board, bot.Bot(), flipped, autoplay_bool, autoplay_online_bool, player_color)
 
-
-    if not board.legal_moves:
-        running = False
-        if not board.is_check():
-            print("draw")
-            break
-        if counter % 2 == 0:
-            print("black won")
-            break
-        else:
-            print("white won")
-            break
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            row, col = get_square_from_pos(pygame.mouse.get_pos(), flipped)
-            square = chess.square(col, row)
-            print(square)
-            if selected_square is None:
-                if board.piece_at(square):
-                    selected_square = square
-            else:
-                if board.piece_at(selected_square) and board.piece_at(selected_square).piece_type == chess.PAWN:
-                    if chess.square_rank(square) == 7 or chess.square_rank(square) == 0:
-                        move = chess.Move(selected_square, square, promotion=chess.QUEEN)
-                    else:
-                        move = chess.Move(selected_square, square)
-                else:
-                    move = chess.Move(selected_square, square)
-                if move in board.legal_moves:
-                    board.push(move)
-                    moves1.append(move)
-                    moves_played.append(move)
-                    print(move)
-                    flipped = not flipped
-                    counter += 1
-                else:
-                    print("illegal move")
-                selected_square = None
-            print(f"you clicked {board.piece_at(square)}")
-        elif event.type == pygame.KEYDOWN and not autoplay_bool:
-            if event.key == pygame.K_SPACE:
-                if counter % 2 != 0:
-                    best_move = chess_bot.get_best_move(board)
-                    board.push(best_move)
-                    moves1.append(best_move)
-                    print(f"ai chose: {best_move}")
-                else:
-                    print("its white's turn")
-                    best_move = chess_bot.get_best_move(board)
-                    board.push(best_move)
-            elif event.key == pygame.K_d:
-                autoplay_bool = not autoplay_bool
-                print("autoplay on")
-            elif event.key == pygame.K_a:
-                autoplay_online_bool = not autoplay_online_bool
-                autoplay_bool = True
-                print("autoplay online on")
-        if autoplay_bool:
-            if counter % 2 != 0:
-                best_move = chess_bot.get_best_move(board)
-                print(best_move)
-                if board.legal_moves:
-                    counter += 1
-                    board.push(best_move)
-                    moves1.append(best_move)
-                    moves_played.append(best_move)
-                flipped = not flipped
-print(uci_to_pgn(moves1))
 while running and autoplay_online_bool and not custom_board_bool and not bot_vs_bot:
     if moves_played:
         for i in moves_played:
@@ -239,18 +160,21 @@ while running and autoplay_online_bool and not custom_board_bool and not bot_vs_
                 board.push(best_move)
                 sleep(1)
                 autoplay_online(best_move,analysis)
-play = True
 
+play = True
 moves = []
 bot_counter = 0
 if autoplay_online_bool:
     sleep(3)
 while running and bot_vs_bot:
-    k_in_a_row = 0
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
     draw_board(flipped)
     draw_pieces(flipped)
     pygame.display.flip()
-
+    keys = pygame.key.get_pressed()
     if board.is_checkmate():
         if counter % 2 == 0:
             print("black won")
@@ -258,33 +182,27 @@ while running and bot_vs_bot:
             print("white won")
         break
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                play = not play
+    if keys[pygame.K_SPACE]:
+        play = not play
+        print("game state: ", play)
 
     if play:
         best_move = chess_bot.get_best_move(board)
         move_str = str(best_move)
         move_1,move_2 = move_str[:2],move_str[2:4]
-        if len(move_1) == 2 and len(move_2) == 2:
-            move_1_n,move_2_n = config.square_to_number[move_1],config.square_to_number[move_2]
-        else:
-            move_1_n, move_2_n = "udf","udf"
+        move_1_n,move_2_n = config.square_to_number[move_1],config.square_to_number[move_2]
         moves.append(best_move)
         if not autoplay_bool:
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_d:
                         board.push(best_move)
-                        print(best_move)
         else:
             board.push(best_move)
         sleep(0.05)
         moves_played.append(best_move)
         if autoplay_online_bool:
             autoplay_online(best_move,analysis)
+
 print(uci_to_pgn(moves))
 pygame.quit()
