@@ -2,6 +2,8 @@ import pygame
 import chess
 import config
 import functions
+from main import running
+
 
 class CustomBoard:
     def __init__(self, board, flipped):
@@ -91,5 +93,39 @@ class CustomBoard:
                     config.screen.blit(config.PIECE_IMAGES[piece_symbol], (col * config.SQUARE_SIZE, row * config.SQUARE_SIZE))
 
 class NormalGame:
-    def __init__(self, flipped):
+    def __init__(self, board, flipped):
         self.flipped = flipped
+        self.board = board
+        self.selected_square = None
+        self.running = True
+
+    def draw_board(self):
+        for row in range(config.ROWS):
+            for col in range(config.COLS):
+                color = config.LIGHT_BROWN if (row + col) % 2 == 0 else config.DARK_BROWN
+                actual_row = 7 - row if self.flipped else row
+                actual_col = 7 - col if self.flipped else col
+                pygame.draw.rect(config.screen, color, (
+                actual_col * config.SQUARE_SIZE, actual_row * config.SQUARE_SIZE, config.SQUARE_SIZE,
+                config.SQUARE_SIZE))
+
+    def draw_pieces(self):
+        for row in range(config.ROWS):
+            for col in range(config.COLS):
+                actual_row = 7 - row if self.flipped else row
+                actual_col = 7 - col if not self.flipped else col
+
+                square = chess.square(actual_col, actual_row)
+                piece = self.board.piece_at(square)
+                if piece:
+                    piece_symbol = piece.symbol()
+                    config.screen.blit(config.PIECE_IMAGES[piece_symbol], (col * config.SQUARE_SIZE, row * config.SQUARE_SIZE))
+
+    def run(self):
+        self.draw_board()
+        self.draw_pieces()
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
