@@ -8,6 +8,9 @@ LIGHT_BROWN = (237, 204, 155)
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 PIECE_IMAGES = {}
 PIECES = {'p': 'bp.png', 'r': 'br.png', 'n': 'bn.png', 'b': 'bb.png', 'q': 'bq.png', 'k': 'bk.png', 'P': 'p.png', 'R': 'r.png', 'N': 'n.png', 'B': 'b.png', 'Q': 'q.png', 'K': 'k.png'}
+for piece, filename in PIECES.items():
+    PIECE_IMAGES[piece] = pygame.image.load(f'assets/{filename}')
+    PIECE_IMAGES[piece] = pygame.transform.scale(PIECE_IMAGES[piece], (SQUARE_SIZE, SQUARE_SIZE))
 pygame.display.set_caption("chess")
 
 square_to_number = {"a1":0,"a2":8,"a3":16,"a4":24,"a5":32,"a6":40,"a7":48,"a8":56,
@@ -18,6 +21,7 @@ square_to_number = {"a1":0,"a2":8,"a3":16,"a4":24,"a5":32,"a6":40,"a7":48,"a8":5
                     "f1":5,"f2":13,"f3":21,"f4":29,"f5":37,"f6":45,"f7":53,"f8":61,
                     "g1":6,"g2":14,"g3":22,"g4":30,"g5":38,"g6":46,"g7":54,"g8":62,
                     "h1":7,"h2":15,"h3":23,"h4":31,"h5":39,"h6":47,"h7":55,"h8":63}
+
 analysis_coordinates = {"a1": (435, 905), "a2": (435, 805), "a3": (435, 705), "a4": (435, 605), "a5": (435, 505),
                         "a6": (435, 405), "a7": (435, 305), "a8": (435, 205),
                         "b1": (535, 905), "b2": (535, 805), "b3": (535, 705), "b4": (535, 605), "b5": (535, 505),
@@ -35,6 +39,7 @@ analysis_coordinates = {"a1": (435, 905), "a2": (435, 805), "a3": (435, 705), "a
                         "h1": (1135, 905), "h2": (1135, 805), "h3": (1135, 705), "h4": (1135, 605), "h5": (1135, 505),
                         "h6": (1135, 405), "h7": (1135, 305), "h8": (1135, 205),
                         }
+
 normal_coordinates = {"a1": (275, 905), "a2": (275, 805), "a3": (275, 705), "a4": (275, 605), "a5": (275, 505),
                       "a6": (275, 405), "a7": (275, 305), "a8": (275, 205),
                       "b1": (375, 905), "b2": (375, 805), "b3": (375, 705), "b4": (375, 605), "b5": (375, 505),
