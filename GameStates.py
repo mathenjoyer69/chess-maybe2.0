@@ -414,7 +414,9 @@ class AutoplayOnlineGame:
     def run(self):
         while self.running:
             self.sync_moves_online()
-            self.draw()
+            self.draw_board()
+            self.draw_pieces()
+            pygame.display.flip()
 
             if self.board.is_checkmate():
                 winner = "black" if self.counter % 2 == 0 else "white"
@@ -422,11 +424,6 @@ class AutoplayOnlineGame:
                 self.running = False
 
             self.handle_events()
-
-    def draw(self):
-        self.draw_board()
-        self.draw_pieces()
-        pygame.display.flip()
 
     def sync_moves_online(self):
         if self.moves_played:
