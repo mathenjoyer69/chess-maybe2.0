@@ -175,7 +175,7 @@ class NormalGame:
     def check_game_end(self):
         self.running = False
         if self.board.is_checkmate():
-            winner = "black" if self.counter % 2 == 0 else "white"
+            winner = "white" if self.counter % 2 == 0 else "black"
             print(f"{winner} won")
 
     def handle_mouse(self):
@@ -327,7 +327,7 @@ class BotVsBot:
             pygame.display.flip()
 
             if self.board.is_checkmate():
-                winner = "black" if self.counter % 2 == 0 else "white"
+                winner = "white" if self.counter % 2 == 0 else "black"
                 print(f"{winner} won")
                 break
 
@@ -419,7 +419,7 @@ class AutoplayOnlineGame:
             pygame.display.flip()
 
             if self.board.is_checkmate():
-                winner = "black" if self.counter % 2 == 0 else "white"
+                winner = "white" if self.counter % 2 == 0 else "black"
                 print(f"{winner} won")
                 self.running = False
 
