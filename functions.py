@@ -1,5 +1,6 @@
 from config import *
 import chess
+from buttons import *
 
 def draw_board(flipped):
     for row in range(ROWS):
@@ -26,7 +27,10 @@ def get_square_from_pos(pos, flipped):
     row, col = y // SQUARE_SIZE, x // SQUARE_SIZE
     actual_row = 7 - row if flipped else row
     actual_col = 7 - col if not flipped else col
-    return actual_row, actual_col
+    if x <= 800:
+        return actual_row, actual_col
+    else:
+        return None, None
 
 def check_game_end(board):
     running = False

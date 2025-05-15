@@ -1,5 +1,7 @@
 from time import sleep
 import pyautogui
+import pygame.mouse
+
 from functions import *
 import config
 
@@ -75,6 +77,8 @@ class NormalGame:
         self.moves1 = []
         self.player_color = player_color
 
+        self.autoplay_button = Button(800, 0, 200, 50, 'auto play', 'red', 'green', self.autoplay)
+
     def run(self):
         while self.running and not self.autoplay_online and not self.custom_board and not self.bot_vs_bot:
             self.update_screen()
@@ -94,12 +98,15 @@ class NormalGame:
                 elif event.type == pygame.KEYDOWN and not self.autoplay:
                     self.handle_keydown(event)
 
+                self.handle_event(event)
+
             if self.autoplay:
                 self.handle_autoplay()
 
     def update_screen(self):
         draw_board(self.flipped)
         draw_pieces(self.flipped, self.board)
+        self.autoplay_button.draw(screen)
         pygame.display.flip()
 
     def make_bot_move(self):
@@ -110,17 +117,20 @@ class NormalGame:
             self.player_color = not self.player_color
 
     def handle_mouse(self):
-        row, col = get_square_from_pos(pygame.mouse.get_pos(), self.flipped)
-        square = chess.square(col, row)
-        print(square)
-        if self.selected_square is None:
-            if self.board.piece_at(square):
-                self.selected_square = square
-        else:
-            self.make_move(square)
-            self.selected_square = None
+        (mx, my) = pygame.mouse.get_pos()
+        if mx <= 800:
+            row, col = get_square_from_pos((mx, my), self.flipped)
+            square = chess.square(col, row)
+            print(square)
+            if self.selected_square is None:
+                if self.board.piece_at(square):
+                    self.selected_square = square
+            else:
+                self.make_move(square)
+                self.selected_square = None
 
-        print(f"you clicked {self.board.piece_at(square)}")
+            if col < 7:
+                print(f"you clicked {self.board.piece_at(square)}")
 
     def make_move(self, to_square):
         if self.board.piece_at(self.selected_square) and self.board.piece_at(self.selected_square).piece_type == chess.PAWN:
@@ -156,6 +166,17 @@ class NormalGame:
             self.autoplay_online = not self.autoplay_online
             self.autoplay = True
             print("playing: ", self.autoplay)
+
+    def handle_event(self, event):
+        mouse_pos = pygame.mouse.get_pos()
+        if event.type == pygame.MOUSEMOTION:
+            self.autoplay_button.is_hovered = self.autoplay_button.is_over(mouse_pos)
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.autoplay_button.is_over(mouse_pos):
+                self.autoplay = not self.autoplay
+                config.autoplay_bool = self.autoplay
+                self.autoplay_button.is_selected = not self.autoplay_button.is_selected
 
     def handle_autoplay(self):
         if self.counter % 2 != 0:
