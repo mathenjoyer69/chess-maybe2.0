@@ -1,22 +1,24 @@
-import pygame
-import chess
-import config
 from time import sleep
 import pyautogui
+from functions import *
+import config
 
 class CustomBoard:
-    def __init__(self, board, flipped):
+    def __init__(self, board, flipped, autoplay, autoplay_online):
         self.board = board
         self.flipped = flipped
         self.selected_square = None
         self.running = True
         self.moves_played = []
         self.counter = 0
+        self.autoplay_bool = autoplay
+        self.autoplay_online_bool = autoplay_online
 
     def run(self):
         while self.running:
-            self.draw_board()
-            self.draw_pieces()
+            print(config.custom_board_bool)
+            draw_board(self.flipped)
+            draw_pieces(self.flipped, self.board)
             pygame.display.flip()
 
             for event in pygame.event.get():
@@ -24,7 +26,7 @@ class CustomBoard:
                     self.running = False
 
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    row, col = self.get_square_from_pos(pygame.mouse.get_pos())
+                    row, col = get_square_from_pos(pygame.mouse.get_pos(), self.flipped)
                     self.selected_square = chess.square(col, row)
 
                 elif event.type == pygame.KEYDOWN:
@@ -54,40 +56,8 @@ class CustomBoard:
         elif key == pygame.K_BACKSPACE:
             self.board.remove_piece_at(self.selected_square)
         elif key == pygame.K_SPACE:
-            self.running = False
+            config.custom_board_bool = False
 
-    def get_square_from_pos(self, pos):
-        x, y = pos
-        square_size = 100
-        row = y // square_size
-        col = x // square_size
-        if self.flipped:
-            row = 7 - row
-            col = col
-        else:
-            col = 7 - col
-            row = row
-        return row, col
-
-    def draw_board(self):
-        for row in range(config.ROWS):
-            for col in range(config.COLS):
-                color = config.LIGHT_BROWN if (row + col) % 2 == 0 else config.DARK_BROWN
-                actual_row = 7 - row if self.flipped else row
-                actual_col = 7 - col if self.flipped else col
-                pygame.draw.rect(config.screen, color, (actual_col * config.SQUARE_SIZE, actual_row * config.SQUARE_SIZE, config.SQUARE_SIZE, config.SQUARE_SIZE))
-
-    def draw_pieces(self):
-        for row in range(config.ROWS):
-            for col in range(config.COLS):
-                actual_row = 7 - row if self.flipped else row
-                actual_col = 7 - col if not self.flipped else col
-
-                square = chess.square(actual_col, actual_row)
-                piece = self.board.piece_at(square)
-                if piece:
-                    piece_symbol = piece.symbol()
-                    config.screen.blit(config.PIECE_IMAGES[piece_symbol], (col * config.SQUARE_SIZE, row * config.SQUARE_SIZE))
 
 class NormalGame:
     def __init__(self, board, bot, flipped, autoplay, autoplay_online, player_color, custom_board=False, bot_vs_bot=False):
@@ -105,39 +75,6 @@ class NormalGame:
         self.moves1 = []
         self.player_color = player_color
 
-    def draw_board(self):
-        for row in range(config.ROWS):
-            for col in range(config.COLS):
-                color = config.LIGHT_BROWN if (row + col) % 2 == 0 else config.DARK_BROWN
-                actual_row = 7 - row if self.flipped else row
-                actual_col = 7 - col if self.flipped else col
-                pygame.draw.rect(config.screen, color, (actual_col * config.SQUARE_SIZE, actual_row * config.SQUARE_SIZE, config.SQUARE_SIZE, config.SQUARE_SIZE))
-
-    def draw_pieces(self):
-        for row in range(config.ROWS):
-            for col in range(config.COLS):
-                actual_row = 7 - row if self.flipped else row
-                actual_col = 7 - col if not self.flipped else col
-
-                square = chess.square(actual_col, actual_row)
-                piece = self.board.piece_at(square)
-                if piece:
-                    piece_symbol = piece.symbol()
-                    config.screen.blit(config.PIECE_IMAGES[piece_symbol], (col * config.SQUARE_SIZE, row * config.SQUARE_SIZE))
-
-    def get_square_from_pos(self, pos):
-        x, y = pos
-        square_size = 100
-        row = y // square_size
-        col = x // square_size
-        if self.flipped:
-            row = 7 - row
-            col = col
-        else:
-            col = 7 - col
-            row = row
-        return row, col
-
     def run(self):
         while self.running and not self.autoplay_online and not self.custom_board and not self.bot_vs_bot:
             self.update_screen()
@@ -146,7 +83,7 @@ class NormalGame:
                 self.make_bot_move()
 
             if not any(self.board.legal_moves):
-                self.check_game_end()
+                check_game_end(self.board)
                 break
 
             for event in pygame.event.get():
@@ -161,8 +98,8 @@ class NormalGame:
                 self.handle_autoplay()
 
     def update_screen(self):
-        self.draw_board()
-        self.draw_pieces()
+        draw_board(self.flipped)
+        draw_pieces(self.flipped, self.board)
         pygame.display.flip()
 
     def make_bot_move(self):
@@ -172,14 +109,8 @@ class NormalGame:
             self.moves1.append(bot_move)
             self.player_color = not self.player_color
 
-    def check_game_end(self):
-        self.running = False
-        if self.board.is_checkmate():
-            winner = "white" if self.counter % 2 == 0 else "black"
-            print(f"{winner} won")
-
     def handle_mouse(self):
-        row, col = self.get_square_from_pos(pygame.mouse.get_pos())
+        row, col = get_square_from_pos(pygame.mouse.get_pos(), self.flipped)
         square = chess.square(col, row)
         print(square)
         if self.selected_square is None:
@@ -253,39 +184,6 @@ class BotVsBot:
         if self.autoplay_online_bool:
             sleep(3)
 
-    def draw_board(self):
-        for row in range(config.ROWS):
-            for col in range(config.COLS):
-                color = config.LIGHT_BROWN if (row + col) % 2 == 0 else config.DARK_BROWN
-                actual_row = 7 - row if self.flipped else row
-                actual_col = 7 - col if self.flipped else col
-                pygame.draw.rect(config.screen, color, (actual_col * config.SQUARE_SIZE, actual_row * config.SQUARE_SIZE, config.SQUARE_SIZE,   config.SQUARE_SIZE))
-
-    def draw_pieces(self):
-        for row in range(config.ROWS):
-            for col in range(config.COLS):
-                actual_row = 7 - row if self.flipped else row
-                actual_col = 7 - col if not self.flipped else col
-
-                square = chess.square(actual_col, actual_row)
-                piece = self.board.piece_at(square)
-                if piece:
-                    piece_symbol = piece.symbol()
-                    config.screen.blit(config.PIECE_IMAGES[piece_symbol], (col * config.SQUARE_SIZE, row * config.SQUARE_SIZE))
-
-    def get_square_from_pos(self, pos):
-        x, y = pos
-        square_size = 100
-        row = y // square_size
-        col = x // square_size
-        if self.flipped:
-            row = 7 - row
-            col = col
-        else:
-            col = 7 - col
-            row = row
-        return row, col
-
     @staticmethod
     def uci_to_pgn(uci_moves):
         pgn_moves = []
@@ -300,9 +198,9 @@ class BotVsBot:
     def autoplay_online(move1, analysis):
         move_str = str(move1)
         if analysis:
-            coordinates = config.analysis_coordinates
+            coordinates = analysis_coordinates
         else:
-            coordinates = config.normal_coordinates
+            coordinates = normal_coordinates
 
         first_mouse = move_str[:2]
         last_mouse = move_str[2:]
@@ -322,14 +220,12 @@ class BotVsBot:
                     self.play = not self.play
                     print("playing", self.play)
 
-            self.draw_board()
-            self.draw_pieces()
+            draw_board(self.flipped)
+            draw_pieces(self.flipped, self.board)
             pygame.display.flip()
 
             if self.board.is_checkmate():
-                winner = "white" if self.counter % 2 == 0 else "black"
-                print(f"{winner} won")
-                break
+                check_game_end(self.board)
 
             if self.play:
                 self.make_move()
@@ -365,9 +261,9 @@ class AutoplayOnlineGame:
     def autoplay_online(move1, analysis):
         move_str = str(move1)
         if analysis:
-            coordinates = config.analysis_coordinates
+            coordinates = analysis_coordinates
         else:
-            coordinates = config.normal_coordinates
+            coordinates = normal_coordinates
 
         first_mouse = move_str[:2]
         last_mouse = move_str[2:]
@@ -378,44 +274,11 @@ class AutoplayOnlineGame:
         sleep(0.5)
         pyautogui.dragTo(last_m_coordinates, button="left")
 
-    def draw_board(self):
-        for row in range(config.ROWS):
-            for col in range(config.COLS):
-                color = config.LIGHT_BROWN if (row + col) % 2 == 0 else config.DARK_BROWN
-                actual_row = 7 - row if self.flipped else row
-                actual_col = 7 - col if self.flipped else col
-                pygame.draw.rect(config.screen, color, (actual_col * config.SQUARE_SIZE, actual_row * config.SQUARE_SIZE, config.SQUARE_SIZE, config.SQUARE_SIZE))
-
-    def draw_pieces(self):
-        for row in range(config.ROWS):
-            for col in range(config.COLS):
-                actual_row = 7 - row if self.flipped else row
-                actual_col = 7 - col if not self.flipped else col
-
-                square = chess.square(actual_col, actual_row)
-                piece = self.board.piece_at(square)
-                if piece:
-                    piece_symbol = piece.symbol()
-                    config.screen.blit(config.PIECE_IMAGES[piece_symbol], (col * config.SQUARE_SIZE, row * config.SQUARE_SIZE))
-
-    def get_square_from_pos(self, pos):
-        x, y = pos
-        square_size = 100
-        row = y // square_size
-        col = x // square_size
-        if self.flipped:
-            row = 7 - row
-            col = col
-        else:
-            col = 7 - col
-            row = row
-        return row, col
-
     def run(self):
         while self.running:
             self.sync_moves_online()
-            self.draw_board()
-            self.draw_pieces()
+            draw_board(self.flipped)
+            draw_pieces(self.flipped, self.board)
             pygame.display.flip()
 
             if self.board.is_checkmate():
@@ -444,7 +307,7 @@ class AutoplayOnlineGame:
                 self.handle_keydown(event)
 
     def handle_mouse_click(self):
-        row, col = self.get_square_from_pos(pygame.mouse.get_pos())
+        row, col = get_square_from_pos(pygame.mouse.get_pos(), self.flipped)
         square = chess.square(col, row)
 
         if self.selected_square is None:
