@@ -91,19 +91,12 @@ class NormalGame:
         self.moves1 = []
         self.player_color = player_color
 
-        self.autoplay_button = Button(800, 0, 200, 50, 'auto play', 'red', 'green', self.autoplay, True)
+        self.autoplay_button = Button(800, HEIGHT//2 - 50, 200, 50, 'auto play', 'red', 'green', self.autoplay, True)
         self.timer = ChessClock(800, HEIGHT//2, 200, 50)
 
     def run(self):
         while self.running and not self.autoplay_online and not self.custom_board and not self.bot_vs_bot:
             self.update_screen()
-
-            if not self.player_color and self.autoplay:
-                self.make_bot_move()
-
-            if not any(self.board.legal_moves):
-                check_game_end(self.board)
-                break
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -112,8 +105,14 @@ class NormalGame:
                     self.handle_mouse()
                 elif event.type == pygame.KEYDOWN and not self.autoplay:
                     self.handle_keydown(event)
-
                 self.handle_event(event)
+
+            if not self.player_color and self.autoplay:
+                self.make_bot_move()
+
+            if not any(self.board.legal_moves):
+                check_game_end(self.board)
+                break
 
             if self.autoplay:
                 self.handle_autoplay()
@@ -122,11 +121,13 @@ class NormalGame:
         draw_board(self.flipped)
         draw_pieces(self.flipped, self.board)
         self.autoplay_button.draw(screen)
-        self.timer.update(self.board.turn == chess.WHITE)
+        self.timer.update(self.board.turn == chess.WHITE, self.bot.get_move_time())
+        self.bot.passed_time = 0
         self.timer.draw(screen)
         pygame.display.flip()
 
     def make_bot_move(self):
+        self.bot.start_time = pygame.time.get_ticks() / 1000
         bot_move = self.bot.get_best_move(self.board)
         if bot_move in self.board.legal_moves:
             self.board.push(bot_move)

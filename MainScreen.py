@@ -1,4 +1,5 @@
 import tkinter as tk
+import config
 
 class MainScreen:
     def __init__(self):
@@ -35,15 +36,18 @@ class MainScreen:
         tk.Label(self.root, text="click this if you want the bot to play against it self(it doesnt work yet)").pack()
         tk.Checkbutton(self.root, text="bot vs bot", variable=self.bot_vs_bot).pack(pady=5)
 
+        tk.Button(self.root, text='start game', command=self.on_close).pack()
+
     def on_close(self):
         self.autoplay_online_bool = self.autoplay_online_bool.get()
         self.analysis = self.analysis.get()
         self.autoplay_bool = self.autoplay_bool.get()
         self.custom_board_bool = self.custom_board_bool.get()
         self.bot_vs_bot = self.bot_vs_bot.get()
-        self.player_color = self.player_color.get()
+        self.player_color = not self.player_color.get()
 
         self.settings = {'autoplay_online_bool':self.autoplay_online_bool, 'analysis':self.analysis, 'autoplay_bool':self.autoplay_bool,
                          'custom_board_bool':self.custom_board_bool, 'bot_vs_bot':self.bot_vs_bot, 'player_color':self.player_color}
 
         self.root.destroy()
+        config.start = True

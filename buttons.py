@@ -1,4 +1,5 @@
 import pygame
+import bot
 
 pygame.init()
 font = pygame.font.SysFont(None, 24)
@@ -62,14 +63,16 @@ class ChessClock:
     def is_over(self, pos):
         return self.rect.collidepoint(pos)
 
-    def update(self, turn):
+    def update(self, turn, bot_time):
         current_time = pygame.time.get_ticks() / 1000
         passed_time = current_time - self.start_time
 
         if turn:
             self.white_time_seconds -= passed_time
+            self.black_time_seconds -= bot_time
         else:
             self.black_time_seconds -= passed_time
+
 
         self.start_time = current_time
 

@@ -1,8 +1,11 @@
 import chess
 import random
+import pygame
 
 class Bot:
     def __init__(self):
+        self.passed_time = 0
+        self.start_time = pygame.time.get_ticks() / 1000
         self.piece_values = {chess.PAWN: 100, chess.KNIGHT: 320, chess.BISHOP: 330, chess.ROOK: 500, chess.QUEEN: 900, chess.KING: 20000}
 
         self.white_pawn_table = [
@@ -214,6 +217,8 @@ class Bot:
         if black_bishop_count >= 2:
             value -= 30
 
+        self.current_time = pygame.time.get_ticks() / 1000
+        self.passed_time = self.current_time - self.start_time
         return value
 
     def minimax(self, board, depth, alpha, beta, maximizing):
@@ -302,3 +307,7 @@ class Bot:
         else:
             print("no legal moves")
             return None
+
+    def get_move_time(self):
+        return self.passed_time/100
+
