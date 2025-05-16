@@ -1,7 +1,5 @@
 from time import sleep
 import pyautogui
-import pygame.mouse
-
 from functions import *
 import config
 
@@ -15,24 +13,28 @@ class CustomBoard:
         self.counter = 0
         self.autoplay_bool = autoplay
         self.autoplay_online_bool = autoplay_online
+        self.start_game = Button(800, 0, 200, 50, 'start game', 'red', 'green', False, True)
 
     def run(self):
         while self.running:
+            (mx, my) = pygame.mouse.get_pos()
             print(config.custom_board_bool)
             draw_board(self.flipped)
             draw_pieces(self.flipped, self.board)
+            self.start_game.draw(screen)
             pygame.display.flip()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
-
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    row, col = get_square_from_pos(pygame.mouse.get_pos(), self.flipped)
-                    self.selected_square = chess.square(col, row)
-
+                    if mx <= 800:
+                        row, col = get_square_from_pos((mx, my), self.flipped)
+                        self.selected_square = chess.square(col, row)
                 elif event.type == pygame.KEYDOWN:
                     self.handle_keydown(event)
+
+                self.handle_event(event)
 
     def handle_keydown(self, event):
         if self.selected_square is None:
@@ -59,6 +61,18 @@ class CustomBoard:
             self.board.remove_piece_at(self.selected_square)
         elif key == pygame.K_SPACE:
             config.custom_board_bool = False
+            self.running = False
+
+    def handle_event(self, event):
+        mouse_pos = pygame.mouse.get_pos()
+        if event.type == pygame.MOUSEMOTION:
+            self.start_game.is_hovered = self.start_game.is_over(mouse_pos)
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.start_game.is_over(mouse_pos):
+                config.custom_board_bool = False
+                self.running = False
+                self.start_game.is_selected = not self.start_game.is_selected
 
 
 class NormalGame:
@@ -77,7 +91,8 @@ class NormalGame:
         self.moves1 = []
         self.player_color = player_color
 
-        self.autoplay_button = Button(800, 0, 200, 50, 'auto play', 'red', 'green', self.autoplay)
+        self.autoplay_button = Button(800, 0, 200, 50, 'auto play', 'red', 'green', self.autoplay, True)
+        self.timer = ChessClock(800, HEIGHT//2, 200, 50)
 
     def run(self):
         while self.running and not self.autoplay_online and not self.custom_board and not self.bot_vs_bot:
@@ -107,6 +122,8 @@ class NormalGame:
         draw_board(self.flipped)
         draw_pieces(self.flipped, self.board)
         self.autoplay_button.draw(screen)
+        self.timer.update(self.board.turn == chess.WHITE)
+        self.timer.draw(screen)
         pygame.display.flip()
 
     def make_bot_move(self):
@@ -177,6 +194,9 @@ class NormalGame:
                 self.autoplay = not self.autoplay
                 config.autoplay_bool = self.autoplay
                 self.autoplay_button.is_selected = not self.autoplay_button.is_selected
+
+            if self.timer.is_over(mouse_pos):
+                self.timer.is_selected = not self.timer.is_selected
 
     def handle_autoplay(self):
         if self.counter % 2 != 0:
