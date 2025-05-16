@@ -80,6 +80,7 @@ class NormalGame:
         self.board = board
         self.bot = bot
         self.flipped = flipped
+        self.original_flipped = flipped
         self.autoplay = autoplay
         self.autoplay_online = autoplay_online
         self.custom_board = custom_board
@@ -90,9 +91,10 @@ class NormalGame:
         self.moves_played = []
         self.moves1 = []
         self.player_color = player_color
-
+        self.reset = False
         self.autoplay_button = Button(800, HEIGHT//2 - 50, 200, 50, 'auto play', 'red', 'green', self.autoplay, True)
         self.timer = ChessClock(800, HEIGHT//2, 200, 50)
+        self.reset_button = Button(800, HEIGHT//2 + 50, 200, 50, 'reset game', 'white', 'green', self.reset, True)
 
     def run(self):
         while self.running and not self.autoplay_online and not self.custom_board and not self.bot_vs_bot:
@@ -121,6 +123,7 @@ class NormalGame:
         draw_board(self.flipped)
         draw_pieces(self.flipped, self.board)
         self.autoplay_button.draw(screen)
+        self.reset_button.draw(screen)
         self.timer.update(self.board.turn == chess.WHITE, self.bot.get_move_time())
         self.bot.passed_time = 0
         self.timer.draw(screen)
@@ -189,6 +192,7 @@ class NormalGame:
         mouse_pos = pygame.mouse.get_pos()
         if event.type == pygame.MOUSEMOTION:
             self.autoplay_button.is_hovered = self.autoplay_button.is_over(mouse_pos)
+            self.reset_button.is_hovered = self.reset_button.is_over(mouse_pos)
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.autoplay_button.is_over(mouse_pos):
@@ -196,8 +200,17 @@ class NormalGame:
                 config.autoplay_bool = self.autoplay
                 self.autoplay_button.is_selected = not self.autoplay_button.is_selected
 
+            if self.reset_button.is_over(mouse_pos):
+                self.reset_button.is_over(mouse_pos)
+                self.reset_button.is_selected = not self.reset_button.is_selected
+                if self.reset_button.is_selected:
+                    self.board = chess.Board()
+                    self.flipped = self.original_flipped
+                    self.reset_button.is_selected = False
+
             if self.timer.is_over(mouse_pos):
                 self.timer.is_selected = not self.timer.is_selected
+                self.timer.start_time = pygame.time.get_ticks() / 1000
 
     def handle_autoplay(self):
         if self.counter % 2 != 0:

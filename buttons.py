@@ -1,5 +1,4 @@
 import pygame
-import bot
 
 pygame.init()
 font = pygame.font.SysFont(None, 24)
@@ -53,6 +52,7 @@ class ChessClock:
         return {'minutes' : minutes, 'seconds' : reminder_seconds}
 
     def draw(self, surface):
+        self.color = (255, 255, 255) if not self.is_selected else (255, 0, 0)
         pygame.draw.rect(surface, self.color, self.rect, border_radius=5)
         pygame.draw.rect(surface, (0, 0, 0), self.rect, 2, border_radius=5)
 
@@ -64,19 +64,20 @@ class ChessClock:
         return self.rect.collidepoint(pos)
 
     def update(self, turn, bot_time):
-        current_time = pygame.time.get_ticks() / 1000
-        passed_time = current_time - self.start_time
+        if not self.is_selected:
+            current_time = pygame.time.get_ticks() / 1000
+            passed_time = current_time - self.start_time
 
-        if turn:
-            self.white_time_seconds -= passed_time
-            self.black_time_seconds -= bot_time
-        else:
-            self.black_time_seconds -= passed_time
+            if turn:
+                self.white_time_seconds -= passed_time
+                self.black_time_seconds -= bot_time
+            else:
+                self.black_time_seconds -= passed_time
 
 
-        self.start_time = current_time
+            self.start_time = current_time
 
-        self.white_time = self.seconds_to_minutes(self.white_time_seconds)
-        self.black_time = self.seconds_to_minutes(self.black_time_seconds)
+            self.white_time = self.seconds_to_minutes(self.white_time_seconds)
+            self.black_time = self.seconds_to_minutes(self.black_time_seconds)
 
-        self.timer = f"{int(self.white_time['minutes'])}:{int(self.white_time['seconds'])} || {int(self.black_time['minutes'])}:{int(self.black_time['seconds'])}"
+            self.timer = f"{int(self.white_time['minutes'])}:{int(self.white_time['seconds'])} || {int(self.black_time['minutes'])}:{int(self.black_time['seconds'])}"
