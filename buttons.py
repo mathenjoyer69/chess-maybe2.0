@@ -34,6 +34,8 @@ class Button:
 
 class ChessClock:
     def __init__(self, x, y, width, height):
+        self.winner = None
+        self.game_over_flag = False
         self.start_time = pygame.time.get_ticks() / 1000
         self.x = x
         self.y = y
@@ -43,8 +45,8 @@ class ChessClock:
         #self.mode = mode
         self.color = (255, 255, 255)
         self.rect = pygame.Rect(x, y, width, height)
-        self.black_time_seconds = 300
-        self.white_time_seconds = 300
+        self.black_time_seconds = 20
+        self.white_time_seconds = 20
         self.black_time = self.seconds_to_minutes(self.black_time_seconds)
         self.white_time = self.seconds_to_minutes(self.white_time_seconds)
         self.timer = f"{int(self.white_time['minutes'])}:{int(self.white_time['seconds'])} || {int(self.black_time['minutes'])}:{int(self.black_time['seconds'])}"
@@ -75,9 +77,10 @@ class ChessClock:
             if turn:
                 self.white_time_seconds -= passed_time
                 self.black_time_seconds -= bot_time
+                self.white_time_seconds = max(0, self.white_time_seconds)
             else:
                 self.black_time_seconds -= passed_time
-
+                self.black_time_seconds = max(0, self.black_time_seconds)
 
             self.start_time = current_time
 
@@ -85,3 +88,13 @@ class ChessClock:
             self.black_time = self.seconds_to_minutes(self.black_time_seconds)
 
             self.timer = f"{int(self.white_time['minutes'])}:{int(self.white_time['seconds'])} || {int(self.black_time['minutes'])}:{int(self.black_time['seconds'])}"
+
+    def win_by_time(self):
+        if self.black_time_seconds < 0.1:
+            self.winner = 'white'
+            self.game_over_flag = True
+        elif self.white_time_seconds < 0.1:
+            self.winner = 'black'
+            self.game_over_flag = True
+
+        return self.game_over_flag

@@ -116,6 +116,10 @@ class NormalGame:
                 check_game_end(self.board)
                 break
 
+            if self.timer.win_by_time():
+                print(f'{self.timer.winner} won by time')
+                break
+
             if self.autoplay:
                 self.handle_autoplay()
 

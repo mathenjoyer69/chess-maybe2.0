@@ -14,7 +14,6 @@ def main():
     autoplay_online_bool = values['autoplay_online']
     bot_vs_bot = values['bot_vs_bot']
     analysis = values['analysis']
-    print(custom_board_bool)
     board = chess.Board() if not custom_board_bool else chess.Board(None)
     if custom_board_bool:
         custom_board = CustomBoard(board, player_color, autoplay_bool, autoplay_online_bool)

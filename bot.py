@@ -4,6 +4,7 @@ import pygame
 
 class Bot:
     def __init__(self):
+        self.current_time = None
         self.passed_time = 0
         self.start_time = pygame.time.get_ticks() / 1000
         self.piece_values = {chess.PAWN: 100, chess.KNIGHT: 320, chess.BISHOP: 330, chess.ROOK: 500, chess.QUEEN: 900, chess.KING: 20000}

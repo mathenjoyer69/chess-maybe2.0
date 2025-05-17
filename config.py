@@ -1,6 +1,5 @@
 import pygame
 import bot
-from MainScreen import *
 
 WIDTH, HEIGHT = 1000, 800
 ROWS, COLS = 8, 8
