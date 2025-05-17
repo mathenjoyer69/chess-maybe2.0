@@ -4,8 +4,9 @@ pygame.init()
 font = pygame.font.SysFont(None, 24)
 
 class Button:
-    def __init__(self, x, y, width, height, text, color, hover_color, state, use_able):
+    def __init__(self, x, y, width, height, text, variable, color, hover_color, state, use_able):
         self.rect = pygame.Rect(x, y, width, height)
+        self.variable = variable
         self.text = text
         self.color = color
         self.hover_color = hover_color

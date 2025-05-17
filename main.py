@@ -1,9 +1,12 @@
 from GameStates import *
 from functions import *
 import config
+from buttons import *
+from preloading import *
 
 def main():
     pygame.init()
+
     board = chess.Board() if not custom_board_bool else chess.Board(None)
 
     if config.custom_board_bool:
@@ -22,7 +25,13 @@ def main():
         bot_vs_bot_game = BotVsBot(board, chess_bot, autoplay_online_bool, analysis, player_color)
         bot_vs_bot_game.run()
 
+def main2():
+    pygame.init()
+    board = chess.Board() if not custom_board_bool else chess.Board(None)
+    g = PreScreen()
+    g.run()
+
 if config.start:
-    main()
+    main2()
 
 pygame.quit()

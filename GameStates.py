@@ -13,12 +13,11 @@ class CustomBoard:
         self.counter = 0
         self.autoplay_bool = autoplay
         self.autoplay_online_bool = autoplay_online
-        self.start_game = Button(800, 0, 200, 50, 'start game', 'red', 'green', False, True)
+        self.start_game = Button(800, 0, 200, 50, 'start game', None, 'red', 'green', False, True)
 
     def run(self):
         while self.running:
             (mx, my) = pygame.mouse.get_pos()
-            print(config.custom_board_bool)
             draw_board(self.flipped)
             draw_pieces(self.flipped, self.board)
             self.start_game.draw(screen)
@@ -92,9 +91,9 @@ class NormalGame:
         self.moves1 = []
         self.player_color = player_color
         self.reset = False
-        self.autoplay_button = Button(800, HEIGHT//2 - 50, 200, 50, 'auto play', 'red', 'green', self.autoplay, True)
+        self.autoplay_button = Button(800, HEIGHT//2 - 50, 200, 50, 'auto play', None, 'red', 'green', self.autoplay, True)
         self.timer = ChessClock(800, HEIGHT//2, 200, 50)
-        self.reset_button = Button(800, HEIGHT//2 + 50, 200, 50, 'reset game', 'white', 'green', self.reset, True)
+        self.reset_button = Button(800, HEIGHT//2 + 50, 200, 50, 'reset game', None, 'white', 'green', self.reset, True)
 
     def run(self):
         while self.running and not self.autoplay_online and not self.custom_board and not self.bot_vs_bot:
@@ -120,6 +119,7 @@ class NormalGame:
                 self.handle_autoplay()
 
     def update_screen(self):
+        screen.fill('black')
         draw_board(self.flipped)
         draw_pieces(self.flipped, self.board)
         self.autoplay_button.draw(screen)
@@ -236,6 +236,7 @@ class BotVsBot:
         self.moves_played = []
         self.counter = 0
 
+        #self.pause_button = Button(800, HEIGHT//2, 200, 50, 'pause')
         if self.autoplay_online_bool:
             sleep(3)
 
@@ -268,6 +269,7 @@ class BotVsBot:
 
     def run(self):
         while self.running:
+            screen.fill('black')
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
@@ -331,6 +333,7 @@ class AutoplayOnlineGame:
 
     def run(self):
         while self.running:
+            screen.fill('black')
             self.sync_moves_online()
             draw_board(self.flipped)
             draw_pieces(self.flipped, self.board)
