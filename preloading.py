@@ -5,12 +5,14 @@ from functions import draw_board
 class PreScreen:
     def __init__(self):
         self.running = True
+
         self.autoplay_button = Button(800, 0, 200, 50, 'auto play', False, 'red', 'green', False, True)
         self.bot_vs_bot_button = Button(800, 50, 200, 50, 'bot vs bot', False, 'red', 'green', False, True)
         self.analysis_button = Button(800, 100, 200, 50, 'analysis', False, 'red', 'green', False, True)
         self.autoplay_online_button = Button(800, 150, 200, 50, 'autoplay online', False, 'red', 'green', False, True)
         self.custom_board_button = Button(800, 200, 200, 50, 'custom board', False, 'red', 'green', False, True)
-        self.buttons = [self.autoplay_button, self.bot_vs_bot_button, self.analysis_button, self.autoplay_online_button, self.custom_board_button]
+        self.player_color_button = Button(800, 250, 200, 50, 'black', False, 'white', 'black', False, True)
+        self.buttons = [self.autoplay_button, self.bot_vs_bot_button, self.analysis_button, self.autoplay_online_button, self.custom_board_button, self.player_color_button]
 
         self.start_game = Button(800, config.HEIGHT / 2 - 50, 200, 50, 'start', self.running, 'red', 'green', False, True)
     def run(self):
@@ -47,4 +49,6 @@ class PreScreen:
                 self.running = False
 
     def get_values(self):
-        return {'autoplay':self.autoplay_button.variable, 'bot_vs_bot':self.bot_vs_bot_button.variable, 'analysis':self.analysis_button.variable, 'autoplay_online':self.autoplay_online_button.variable, 'custom_board':self.custom_board_button.variable}
+        return {'autoplay':self.autoplay_button.variable, 'bot_vs_bot':self.bot_vs_bot_button.variable,
+                'analysis':self.analysis_button.variable, 'autoplay_online':self.autoplay_online_button.variable,
+                'custom_board':self.custom_board_button.variable, 'player_color':self.player_color_button.variable}

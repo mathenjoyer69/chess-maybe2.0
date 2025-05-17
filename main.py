@@ -10,6 +10,10 @@ def main():
     values = g.get_values()
     custom_board_bool = values['custom_board']
     autoplay_bool = values['autoplay']
+    player_color = values['player_color']
+    autoplay_online_bool = values['autoplay_online']
+    bot_vs_bot = values['bot_vs_bot']
+    analysis = values['analysis']
     print(custom_board_bool)
     board = chess.Board() if not custom_board_bool else chess.Board(None)
     if custom_board_bool:
@@ -28,9 +32,6 @@ def main():
         bot_vs_bot_game = BotVsBot(board, chess_bot, autoplay_online_bool, analysis, player_color)
         bot_vs_bot_game.run()
 
-
-
-if config.start:
-    main()
+main()
 
 pygame.quit()

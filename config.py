@@ -63,10 +63,10 @@ normal_coordinates = {"a1": (275, 905), "a2": (275, 805), "a3": (275, 705), "a4"
                       }
 
 chess_bot = bot.Bot()
-main_screen = MainScreen()
-player_color = main_screen.settings['player_color']
-bot_vs_bot = main_screen.settings['bot_vs_bot']
-custom_board_bool = main_screen.settings['custom_board_bool']
-autoplay_bool = main_screen.settings['autoplay_bool']
-analysis = main_screen.settings['analysis']
-autoplay_online_bool = main_screen.settings['autoplay_online_bool']
+# main_screen = MainScreen()
+# player_color = main_screen.settings['player_color']
+# bot_vs_bot = main_screen.settings['bot_vs_bot']
+# custom_board_bool = main_screen.settings['custom_board_bool']
+# autoplay_bool = main_screen.settings['autoplay_bool']
+# analysis = main_screen.settings['analysis']
+# autoplay_online_bool = main_screen.settings['autoplay_online_bool']

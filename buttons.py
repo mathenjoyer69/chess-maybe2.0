@@ -10,12 +10,15 @@ class Button:
         self.text = text
         self.color = color
         self.hover_color = hover_color
+        self.t_flag = self.text == 'black'
         self.is_hovered = False
         self.is_selected = state
         self.use_able = use_able
 
     def draw(self, surface):
         color = self.hover_color if self.is_hovered or self.is_selected else self.color
+        if self.t_flag:
+            self.text = 'white' if self.is_hovered or self.is_selected else 'black'
         if not self.use_able:
             color = (100, 100, 100)
 
