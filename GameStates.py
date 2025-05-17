@@ -92,14 +92,12 @@ class NormalGame:
         self.moves1 = []
         self.player_color = player_color
         self.reset = False
-        self.autoplay_button = Button(800, HEIGHT//2 - 50, 200, 50, 'auto play', None, 'red', 'green', self.autoplay, True)
+        self.autoplay_button = Button(800, HEIGHT//2 - 50, 200, 50, 'auto play', False, 'red', 'green', self.autoplay, True)
         self.timer = ChessClock(800, HEIGHT//2, 200, 50)
         self.reset_button = Button(800, HEIGHT//2 + 50, 200, 50, 'reset game', None, 'white', 'green', self.reset, True)
 
     def run(self):
         while self.running and not self.autoplay_online and not self.custom_board and not self.bot_vs_bot:
-            self.update_screen()
-
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
@@ -108,6 +106,7 @@ class NormalGame:
                 elif event.type == pygame.KEYDOWN and not self.autoplay:
                     self.handle_keydown(event)
                 self.handle_event(event)
+            self.update_screen()
 
             if not self.player_color and self.autoplay:
                 self.make_bot_move()
@@ -172,7 +171,9 @@ class NormalGame:
             self.moves1.append(move)
             self.moves_played.append(move)
             self.counter += 1
-            self.flipped = not self.flipped
+            print(self.autoplay_button.variable, 1111)
+            if not self.autoplay_button.variable:
+                self.flipped = not self.flipped
             print(move)
         else:
             print("illegal move")
@@ -201,8 +202,8 @@ class NormalGame:
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.autoplay_button.is_over(mouse_pos):
+                self.autoplay_button.variable = not self.autoplay_button.variable
                 self.autoplay = not self.autoplay
-                config.autoplay_bool = self.autoplay
                 self.autoplay_button.is_selected = not self.autoplay_button.is_selected
 
             if self.reset_button.is_over(mouse_pos):
@@ -226,7 +227,7 @@ class NormalGame:
                 self.moves1.append(best_move)
                 self.moves_played.append(best_move)
                 self.counter += 1
-                self.flipped = not self.flipped
+#                self.flipped = not self.flipped
 
 class BotVsBot:
     def __init__(self, board, bot, autoplay_online, analysis, flipped):
@@ -241,7 +242,8 @@ class BotVsBot:
         self.moves_played = []
         self.counter = 0
 
-        #self.pause_button = Button(800, HEIGHT//2, 200, 50, 'pause')
+        self.pause_button = Button(800, HEIGHT//2, 200, 50, 'pause', False, 'red', 'green', False, True)
+        self.buttons = [self.pause_button]
         if self.autoplay_online_bool:
             sleep(3)
 
@@ -274,17 +276,13 @@ class BotVsBot:
 
     def run(self):
         while self.running:
-            screen.fill('black')
+            self.draw()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                     self.play = not self.play
                     print("playing", self.play)
-
-            draw_board(self.flipped)
-            draw_pieces(self.flipped, self.board)
-            pygame.display.flip()
 
             if self.board.is_checkmate():
                 check_game_end(self.board)
@@ -295,17 +293,30 @@ class BotVsBot:
 
         print(self.uci_to_pgn(self.moves))
 
+    def draw(self):
+        config.screen.fill('black')
+        draw_board(self.flipped)
+        draw_pieces(self.flipped, self.board)
+        self.pause_button.draw(config.screen)
+        pygame.display.flip()
+
     def make_move(self):
-        best_move = self.bot.get_best_move(self.board)
+        if not self.pause_button.variable:
+            best_move = self.bot.get_best_move(self.board)
 
-        self.moves.append(best_move)
-        self.board.push(best_move)
-        self.moves_played.append(best_move)
+            self.moves.append(best_move)
+            self.board.push(best_move)
+            self.moves_played.append(best_move)
 
-        if self.autoplay_online_bool:
-            self.autoplay_online(best_move, self.analysis_mode)
+            if self.autoplay_online_bool:
+                self.autoplay_online(best_move, self.analysis_mode)
 
-        self.counter += 1
+            self.counter += 1
+
+    def handle_event(self, event):
+        mouse_pos = pygame.mouse.get_pos()
+        if event.type == pygame.MOUSEMOTION:
+            self.pause_button.is_hovered = self.pause_button.is_over(mouse_pos)
 
 class AutoplayOnlineGame:
     def __init__(self, board, bot, autoplay_bool, analysis, flipped):
@@ -315,7 +326,6 @@ class AutoplayOnlineGame:
         self.analysis = analysis
         self.flipped = flipped
         self.running = True
-        self.counter = 0
         self.moves_played = []
         self.selected_square = None
 
@@ -344,10 +354,8 @@ class AutoplayOnlineGame:
             draw_pieces(self.flipped, self.board)
             pygame.display.flip()
 
-            if self.board.is_checkmate():
-                winner = "white" if self.counter % 2 == 0 else "black"
-                print(f"{winner} won")
-                self.running = False
+            if not any(self.board.legal_moves):
+                check_game_end(self.board)
 
             self.handle_events()
 
@@ -385,7 +393,6 @@ class AutoplayOnlineGame:
 
             if move in self.board.legal_moves:
                 self.board.push(move)
-                self.counter += 1
             else:
                 print("illegal move")
 
@@ -401,7 +408,6 @@ class AutoplayOnlineGame:
                 self.moves_played.append(best_move)
                 sleep(1)
                 self.autoplay_online(best_move, self.analysis)
-                self.counter += 1
         elif self.autoplay_bool:
             self.autoplay_bot_move()
 
@@ -413,4 +419,3 @@ class AutoplayOnlineGame:
             self.moves_played.append(best_move)
             sleep(1)
             self.autoplay_online(best_move, self.analysis)
-            self.counter += 1

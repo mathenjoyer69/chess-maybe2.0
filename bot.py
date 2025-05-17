@@ -108,7 +108,7 @@ class Bot:
 
     def evaluate(self, board):
         if board.is_checkmate():
-            return float('-inf') if board.turn else float('inf')
+            return -99999 if board.turn else 99999
 
         if board.is_stalemate() or board.is_insufficient_material():
             return
@@ -239,12 +239,12 @@ class Bot:
                 ordered_moves.append(move)
 
         if maximizing:
-            max_eval = float('-inf')
+            max_eval = -99999
             for move in ordered_moves:
                 board.push(move)
 
                 if board.is_checkmate():
-                    eval_val = float('inf')
+                    eval_val = 99999
                     board.pop()
                     return eval_val, move
 
@@ -262,12 +262,12 @@ class Bot:
             self.transposition_table[board_hash] = (depth, max_eval, best_move)
             return max_eval, best_move
         else:
-            min_eval = float('inf')
+            min_eval = 99999
             for move in ordered_moves:
                 board.push(move)
 
                 if board.is_checkmate():
-                    eval_val = float('-inf')
+                    eval_val = -99999
                     board.pop()
                     return eval_val, move
 
@@ -299,7 +299,7 @@ class Bot:
         print("transposition table length: ", len(self.transposition_table))
         self.transposition_table.clear()
 
-        _, best_move = self.minimax(board, depth, float('-inf'), float('inf'), board.turn == chess.WHITE)
+        _, best_move = self.minimax(board, depth, -99999, 99999, board.turn == chess.WHITE)
 
         if best_move:
             return best_move

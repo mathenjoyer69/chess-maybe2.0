@@ -45,8 +45,8 @@ class ChessClock:
         #self.mode = mode
         self.color = (255, 255, 255)
         self.rect = pygame.Rect(x, y, width, height)
-        self.black_time_seconds = 20
-        self.white_time_seconds = 20
+        self.black_time_seconds = 300
+        self.white_time_seconds = 300
         self.black_time = self.seconds_to_minutes(self.black_time_seconds)
         self.white_time = self.seconds_to_minutes(self.white_time_seconds)
         self.timer = f"{int(self.white_time['minutes'])}:{int(self.white_time['seconds'])} || {int(self.black_time['minutes'])}:{int(self.black_time['seconds'])}"

@@ -4,10 +4,9 @@ from preloading import *
 
 def main():
     pygame.init()
-
-    g = PreScreen()
-    g.run()
-    values = g.get_values()
+    game = PreScreen()
+    game.run()
+    values = game.get_values()
     custom_board_bool = values['custom_board']
     autoplay_bool = values['autoplay']
     player_color = values['player_color']
