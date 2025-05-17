@@ -5,17 +5,14 @@ from functions import draw_board
 class PreScreen:
     def __init__(self):
         self.running = True
-        self.autoplay = False
-        self.bot_vs_bot = False
-        self.analysis = False
-        self.autoplay_online = False
-        self.autoplay_button = Button(800, 0, 200, 50, 'auto play', self.autoplay, 'red', 'green', False, True)
-        self.bot_vs_bot_button = Button(800, 50, 200, 50, 'bot vs bot', self.bot_vs_bot, 'red', 'green', False, True)
-        self.analysis_button = Button(800, 100, 200, 50, 'analysis', self.analysis, 'red', 'green', False, True)
-        self.autoplay_online_button = Button(800, 150, 200, 50, 'autoplay online', self.autoplay_online, 'red', 'green', False, True)
-        self.buttons = [self.autoplay_button, self.bot_vs_bot_button, self.analysis_button, self.autoplay_online_button]
+        self.autoplay_button = Button(800, 0, 200, 50, 'auto play', False, 'red', 'green', False, True)
+        self.bot_vs_bot_button = Button(800, 50, 200, 50, 'bot vs bot', False, 'red', 'green', False, True)
+        self.analysis_button = Button(800, 100, 200, 50, 'analysis', False, 'red', 'green', False, True)
+        self.autoplay_online_button = Button(800, 150, 200, 50, 'autoplay online', False, 'red', 'green', False, True)
+        self.custom_board_button = Button(800, 200, 200, 50, 'custom board', False, 'red', 'green', False, True)
+        self.buttons = [self.autoplay_button, self.bot_vs_bot_button, self.analysis_button, self.autoplay_online_button, self.custom_board_button]
 
-        self.start_game = Button(800, config.HEIGHT / 2 - 50, 200, 50, 'start', None, 'red', 'green', False, True)
+        self.start_game = Button(800, config.HEIGHT / 2 - 50, 200, 50, 'start', self.running, 'red', 'green', False, True)
     def run(self):
         while self.running:
             self.draw()
@@ -27,10 +24,8 @@ class PreScreen:
 
     def draw(self):
         config.screen.fill('black')
-        self.autoplay_button.draw(config.screen)
-        self.bot_vs_bot_button.draw(config.screen)
-        self.analysis_button.draw(config.screen)
-        self.autoplay_online_button.draw(config.screen)
+        for button in self.buttons:
+            button.draw(config.screen)
         self.start_game.draw(config.screen)
         draw_board(False)
         pygame.display.flip()
@@ -47,3 +42,9 @@ class PreScreen:
                 if button.is_over(mouse_pos):
                     button.is_selected = not button.is_selected
                     button.variable = not button.variable
+            if self.start_game.is_over(mouse_pos):
+                self.start_game.is_selected = not self.start_game.is_selected
+                self.running = False
+
+    def get_values(self):
+        return {'autoplay':self.autoplay_button.variable, 'bot_vs_bot':self.bot_vs_bot_button.variable, 'analysis':self.analysis_button.variable, 'autoplay_online':self.autoplay_online_button.variable, 'custom_board':self.custom_board_button.variable}

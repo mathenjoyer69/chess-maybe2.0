@@ -1,23 +1,26 @@
 from GameStates import *
 from functions import *
-import config
-from buttons import *
 from preloading import *
 
 def main():
     pygame.init()
 
+    g = PreScreen()
+    g.run()
+    values = g.get_values()
+    custom_board_bool = values['custom_board']
+    autoplay_bool = values['autoplay']
+    print(custom_board_bool)
     board = chess.Board() if not custom_board_bool else chess.Board(None)
-
-    if config.custom_board_bool:
+    if custom_board_bool:
         custom_board = CustomBoard(board, player_color, autoplay_bool, autoplay_online_bool)
         custom_board.run()
 
-    if not autoplay_online_bool and not config.custom_board_bool and not bot_vs_bot:
+    if not autoplay_online_bool and not custom_board_bool and not bot_vs_bot:
         normal_game = NormalGame(board, chess_bot, player_color, autoplay_bool, autoplay_online_bool, player_color)
         normal_game.run()
 
-    if autoplay_online_bool and not config.custom_board_bool and not bot_vs_bot:
+    if autoplay_online_bool and not custom_board_bool and not bot_vs_bot:
         autoplay_online_game = AutoplayOnlineGame(board, chess_bot, autoplay_bool, analysis, player_color)
         autoplay_online_game.run()
 
@@ -25,13 +28,9 @@ def main():
         bot_vs_bot_game = BotVsBot(board, chess_bot, autoplay_online_bool, analysis, player_color)
         bot_vs_bot_game.run()
 
-def main2():
-    pygame.init()
-    board = chess.Board() if not custom_board_bool else chess.Board(None)
-    g = PreScreen()
-    g.run()
+
 
 if config.start:
-    main2()
+    main()
 
 pygame.quit()

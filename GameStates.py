@@ -17,6 +17,7 @@ class CustomBoard:
 
     def run(self):
         while self.running:
+            config.screen.fill('black')
             (mx, my) = pygame.mouse.get_pos()
             draw_board(self.flipped)
             draw_pieces(self.flipped, self.board)
