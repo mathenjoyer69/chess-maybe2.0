@@ -18,14 +18,20 @@ class Button:
     def draw(self, surface):
         color = self.hover_color if self.is_hovered or self.is_selected else self.color
         if self.t_flag:
-            self.text = 'white' if self.is_hovered or self.is_selected else 'black'
-        if not self.use_able:
-            color = (100, 100, 100)
+            self.text = 'black' if self.is_hovered or self.is_selected else 'white'
 
         pygame.draw.rect(surface, color, self.rect, border_radius=5)
         pygame.draw.rect(surface, (0, 0, 0), self.rect, 2, border_radius=5)
+        if not self.use_able:
+            self.color = (100, 100, 100)
+            text_color = (150, 150, 150)
+        else:
+            if self.t_flag:
+                text_color = 'white' if self.is_hovered or self.is_selected else 'black'
+            else:
+                text_color = 'black' if not (self.is_hovered or self.is_selected) else 'white'
 
-        text_surface = font.render(self.text, True, (255, 255, 255) if self.is_hovered or self.is_selected else (0, 0, 0))
+        text_surface = font.render(self.text, True, text_color)
         text_rect = text_surface.get_rect(center=self.rect.center)
         surface.blit(text_surface, text_rect)
 

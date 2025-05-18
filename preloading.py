@@ -13,7 +13,7 @@ class PreScreen:
         self.analysis_button = Button(800, 100, 200, 50, 'analysis', False, 'red', 'green', False, True)
         self.autoplay_online_button = Button(800, 150, 200, 50, 'autoplay online', False, 'red', 'green', False, True)
         self.custom_board_button = Button(800, 200, 200, 50, 'custom board', False, 'red', 'green', False, True)
-        self.player_color_button = Button(800, 250, 200, 50, 'white', False, 'white', 'black', False, True)
+        self.player_color_button = Button(800, 250, 200, 50, 'white', True, 'white', 'black', False, True)
         #self.blitz_button
         self.buttons = [self.autoplay_button, self.bot_vs_bot_button, self.analysis_button, self.autoplay_online_button, self.custom_board_button, self.player_color_button]
         self.start_game = Button(800, config.HEIGHT / 2 - 50, 200, 50, 'start', self.running, 'red', 'green', False, True)
