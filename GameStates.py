@@ -1,4 +1,4 @@
-from time import sleep
+import time
 import pyautogui
 from functions import *
 import config
@@ -13,7 +13,9 @@ class CustomBoard:
         self.counter = 0
         self.autoplay_bool = autoplay
         self.autoplay_online_bool = autoplay_online
-        self.start_game = Button(800, 0, 200, 50, 'start game', None, 'red', 'green', False, True)
+        self.custom_bool = False
+        self.start_game = Button(800, HEIGHT//2, 200, 50, 'start game', None, 'red', 'green', False, True)
+        self.back_to_main = Button(800, HEIGHT//2+50, 200, 50, 'back', False, 'red', 'green', False, True)
 
     def run(self):
         while self.running:
@@ -21,7 +23,8 @@ class CustomBoard:
             (mx, my) = pygame.mouse.get_pos()
             draw_board(self.flipped)
             draw_pieces(self.flipped, self.board)
-            self.start_game.draw(screen)
+            self.start_game.draw(config.screen)
+            self.back_to_main.draw(config.screen)
             pygame.display.flip()
 
             for event in pygame.event.get():
@@ -67,13 +70,17 @@ class CustomBoard:
         mouse_pos = pygame.mouse.get_pos()
         if event.type == pygame.MOUSEMOTION:
             self.start_game.is_hovered = self.start_game.is_over(mouse_pos)
+            self.back_to_main.is_hovered = self.back_to_main.is_over(mouse_pos)
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.start_game.is_over(mouse_pos):
-                config.custom_board_bool = False
-                self.running = False
                 self.start_game.is_selected = not self.start_game.is_selected
+                self.running = False
 
+            if self.back_to_main.is_over(mouse_pos):
+                self.custom_bool = not self.custom_bool
+                self.back_to_main.is_selected = not self.back_to_main.is_selected
+                self.running = False
 
 class NormalGame:
     def __init__(self, board, bot, flipped, autoplay, autoplay_online, player_color, custom_board=False, bot_vs_bot=False):
@@ -92,20 +99,20 @@ class NormalGame:
         self.moves1 = []
         self.player_color = player_color
         self.reset = False
-        self.autoplay_button = Button(800, HEIGHT//2 - 50, 200, 50, 'auto play', False, 'red', 'green', self.autoplay, True)
+        self.autoplay_button = Button(800, HEIGHT//2 - 50, 200, 50, 'auto play', self.autoplay, 'red', 'green', self.autoplay, True)
         self.timer = ChessClock(800, HEIGHT//2, 200, 50)
         self.reset_button = Button(800, HEIGHT//2 + 50, 200, 50, 'reset game', None, 'white', 'green', self.reset, True)
+        self.back_to_main = Button(800, HEIGHT//2 - 100, 200, 50, 'back', False, 'red', 'green', False, True)
 
     def run(self):
         while self.running and not self.autoplay_online and not self.custom_board and not self.bot_vs_bot:
             for event in pygame.event.get():
+                self.handle_event(event)
                 if event.type == pygame.QUIT:
                     self.running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     self.handle_mouse()
-                elif event.type == pygame.KEYDOWN and not self.autoplay:
-                    self.handle_keydown(event)
-                self.handle_event(event)
+
             self.update_screen()
 
             if not self.player_color and self.autoplay:
@@ -131,6 +138,7 @@ class NormalGame:
         self.timer.update(self.board.turn == chess.WHITE, self.bot.get_move_time())
         self.bot.passed_time = 0
         self.timer.draw(screen)
+        self.back_to_main.draw(config.screen)
         pygame.display.flip()
 
     def make_bot_move(self):
@@ -178,33 +186,23 @@ class NormalGame:
         else:
             print("illegal move")
 
-    def handle_keydown(self, event):
-        if event.key == pygame.K_SPACE:
-            best_move = self.bot.get_best_move(self.board)
-            if best_move in self.board.legal_moves:
-                self.board.push(best_move)
-                self.moves1.append(best_move)
-                print(f"bot chose: {best_move}")
-
-        elif event.key == pygame.K_d:
-            self.autoplay = not self.autoplay
-            print("autoplay: ", self.autoplay)
-        elif event.key == pygame.K_a:
-            self.autoplay_online = not self.autoplay_online
-            self.autoplay = True
-            print("playing: ", self.autoplay)
-
     def handle_event(self, event):
         mouse_pos = pygame.mouse.get_pos()
         if event.type == pygame.MOUSEMOTION:
             self.autoplay_button.is_hovered = self.autoplay_button.is_over(mouse_pos)
             self.reset_button.is_hovered = self.reset_button.is_over(mouse_pos)
+            self.back_to_main.is_hovered = self.back_to_main.is_over(mouse_pos)
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.autoplay_button.is_over(mouse_pos):
                 self.autoplay_button.variable = not self.autoplay_button.variable
                 self.autoplay = not self.autoplay
                 self.autoplay_button.is_selected = not self.autoplay_button.is_selected
+
+            if self.back_to_main.is_over(mouse_pos):
+                self.back_to_main.is_selected = not self.back_to_main.is_selected
+                self.back_to_main.variable = not self.back_to_main.variable
+                self.running = False
 
             if self.reset_button.is_over(mouse_pos):
                 self.reset_button.is_over(mouse_pos)
@@ -241,11 +239,17 @@ class BotVsBot:
         self.moves = []
         self.moves_played = []
         self.counter = 0
+        self.clock = pygame.time.Clock()
+        self.last_move_time = time.time()
+        self.move_delay = 0.5
+        self.bot_thread = None
+        self.bot_is_moving = False
 
         self.pause_button = Button(800, HEIGHT//2, 200, 50, 'pause', False, 'red', 'green', False, True)
-        self.buttons = [self.pause_button]
+        self.back_to_main = Button(800, HEIGHT//2 - 50, 200, 50, 'back', False, 'red', 'green', False, True)
+        #self.buttons = [self.pause_button]
         if self.autoplay_online_bool:
-            sleep(3)
+            time.sleep(3)
 
     @staticmethod
     def uci_to_pgn(uci_moves):
@@ -271,33 +275,35 @@ class BotVsBot:
         last_m_coordinates = coordinates[last_mouse]
         print(first_m_coordinates, last_m_coordinates)
         pyautogui.moveTo(first_m_coordinates)
-        sleep(0.5)
+        time.sleep(0.5)
         pyautogui.dragTo(last_m_coordinates, button="left")
 
     def run(self):
         while self.running:
+            self.clock.tick(60)
             self.draw()
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                     self.play = not self.play
-                    print("playing", self.play)
+                self.handle_event(event)
 
             if self.board.is_checkmate():
                 check_game_end(self.board)
 
-            if self.play:
+            current_time = time.time()
+            if self.play and (current_time - self.last_move_time >= self.move_delay):
                 self.make_move()
-                sleep(0.05)
-
-        print(self.uci_to_pgn(self.moves))
+                self.last_move_time = current_time
 
     def draw(self):
         config.screen.fill('black')
         draw_board(self.flipped)
         draw_pieces(self.flipped, self.board)
         self.pause_button.draw(config.screen)
+        self.back_to_main.draw(config.screen)
         pygame.display.flip()
 
     def make_move(self):
@@ -315,8 +321,20 @@ class BotVsBot:
 
     def handle_event(self, event):
         mouse_pos = pygame.mouse.get_pos()
+
         if event.type == pygame.MOUSEMOTION:
             self.pause_button.is_hovered = self.pause_button.is_over(mouse_pos)
+            self.back_to_main.is_hovered = self.back_to_main.is_over(mouse_pos)
+
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if self.pause_button.is_over(mouse_pos):
+                self.pause_button.is_selected = not self.pause_button.is_selected
+                self.pause_button.variable = not self.pause_button.variable
+
+            if self.back_to_main.is_over(mouse_pos):
+                self.back_to_main.is_selected = not self.back_to_main.is_selected
+                self.back_to_main.variable = not self.back_to_main.variable
+                self.running = False
 
 class AutoplayOnlineGame:
     def __init__(self, board, bot, autoplay_bool, analysis, flipped):
@@ -326,96 +344,107 @@ class AutoplayOnlineGame:
         self.analysis = analysis
         self.flipped = flipped
         self.running = True
-        self.moves_played = []
         self.selected_square = None
+        self.last_move_time = time.time()
+        self.move_delay = 1.0
+
+        self.reset_button = Button(800, HEIGHT//2 + 50, 200, 50, 'reset game', None, 'white', 'green', False, True)
+        self.back_to_main = Button(800, HEIGHT//2 - 100, 200, 50, 'back', False, 'red', 'green', False, True)
+        self.buttons = [self.reset_button, self.back_to_main]
 
     @staticmethod
     def autoplay_online(move1, analysis):
         move_str = str(move1)
-        if analysis:
-            coordinates = analysis_coordinates
-        else:
-            coordinates = normal_coordinates
+        coordinates = analysis_coordinates if analysis else normal_coordinates
 
-        first_mouse = move_str[:2]
-        last_mouse = move_str[2:]
-        first_m_coordinates = coordinates[first_mouse]
-        last_m_coordinates = coordinates[last_mouse]
-        print(first_m_coordinates, last_m_coordinates)
-        pyautogui.moveTo(first_m_coordinates)
-        sleep(0.5)
-        pyautogui.dragTo(last_m_coordinates, button="left")
+        start = coordinates[move_str[:2]]
+        end = coordinates[move_str[2:]]
+        print(f"Autoplaying move: {move_str} -> {start} to {end}")
+        pyautogui.moveTo(start)
+        pyautogui.dragTo(end, duration=0.4, button="left")
 
     def run(self):
-        while self.running:
-            screen.fill('black')
-            self.sync_moves_online()
-            draw_board(self.flipped)
-            draw_pieces(self.flipped, self.board)
-            pygame.display.flip()
+        clock = pygame.time.Clock()
 
-            if not any(self.board.legal_moves):
+        while self.running:
+            clock.tick(60)
+            self.handle_events()
+            self.update()
+            self.draw()
+
+            if self.board.is_checkmate():
                 check_game_end(self.board)
 
-            self.handle_events()
+    def update(self):
+        current_time = time.time()
+        if self.autoplay_bool and current_time - self.last_move_time >= self.move_delay:
+            self.autoplay_bot_move()
+            self.last_move_time = current_time
 
-    def sync_moves_online(self):
-        if self.moves_played:
-            for move in self.moves_played:
-                self.autoplay_online(move, self.analysis)
-                sleep(1)
-            self.moves_played.clear()
+    def draw(self):
+        screen.fill('black')
+        draw_board(self.flipped)
+        draw_pieces(self.flipped, self.board)
+        for button in self.buttons:
+            button.draw(screen)
+        pygame.display.flip()
 
     def handle_events(self):
+        mouse_pos = pygame.mouse.get_pos()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
 
+            elif event.type == pygame.MOUSEMOTION:
+                for button in self.buttons:
+                    button.is_hovered = button.is_over(mouse_pos)
+
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                self.handle_mouse_click()
+                if self.back_to_main.is_over(mouse_pos):
+                    self.back_to_main.variable = not self.back_to_main.variable
+                    self.running = False
+                elif self.reset_button.is_over(mouse_pos):
+                    self.board.reset()
+                else:
+                    self.handle_board_click(mouse_pos)
 
             elif event.type == pygame.KEYDOWN:
-                self.handle_keydown(event)
+                if event.key == pygame.K_SPACE:
+                    self.manual_bot_move()
 
-    def handle_mouse_click(self):
-        row, col = get_square_from_pos(pygame.mouse.get_pos(), self.flipped)
-        square = chess.square(col, row)
+    def handle_board_click(self, pos):
+        px, py = pos
+        if px <= 800:
+            row, col = get_square_from_pos((px, py), self.flipped)
+            square = chess.square(col, row)
 
-        if self.selected_square is None:
-            if self.board.piece_at(square):
-                self.selected_square = square
-        else:
-            piece = self.board.piece_at(self.selected_square)
-            if piece and piece.piece_type == chess.PAWN and (chess.square_rank(square) in [0, 7]):
-                move = chess.Move(self.selected_square, square, promotion=chess.QUEEN)
+            if self.selected_square is None:
+                if self.board.piece_at(square):
+                    self.selected_square = square
             else:
                 move = chess.Move(self.selected_square, square)
+                piece = self.board.piece_at(self.selected_square)
+                if piece and piece.piece_type == chess.PAWN and chess.square_rank(square) in [0, 7]:
+                    move.promotion = chess.QUEEN
 
-            if move in self.board.legal_moves:
-                self.board.push(move)
-            else:
-                print("illegal move")
+                if move in self.board.legal_moves:
+                    self.board.push(move)
+                    self.autoplay_online(move, self.analysis)
+                else:
+                    print("Illegal move attempted")
 
-            self.selected_square = None
-            print(f"you clicked {self.board.piece_at(square)}")
+                self.selected_square = None
 
-    def handle_keydown(self, event):
-        if event.key == pygame.K_SPACE:
-            best_move = self.bot.get_best_move(self.board)
-            if best_move:
-                print(f"bot chose: {best_move}")
-                self.board.push(best_move)
-                self.moves_played.append(best_move)
-                sleep(1)
-                self.autoplay_online(best_move, self.analysis)
-        elif self.autoplay_bool:
-            self.autoplay_bot_move()
+    def manual_bot_move(self):
+        best_move = self.bot.get_best_move(self.board)
+        if best_move:
+            print(f"Bot chose: {best_move}")
+            self.board.push(best_move)
+            self.autoplay_online(best_move, self.analysis)
 
     def autoplay_bot_move(self):
         best_move = self.bot.get_best_move(self.board)
         if best_move:
-            print(f"autoplay move: {best_move}")
+            print(f"Autoplay move: {best_move}")
             self.board.push(best_move)
-            self.moves_played.append(best_move)
-            sleep(1)
             self.autoplay_online(best_move, self.analysis)

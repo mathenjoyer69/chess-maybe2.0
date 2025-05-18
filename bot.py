@@ -111,7 +111,7 @@ class Bot:
             return -99999 if board.turn else 99999
 
         if board.is_stalemate() or board.is_insufficient_material():
-            return
+            return 0
 
         value = 0
         piece_count = 0
