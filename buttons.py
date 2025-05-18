@@ -10,7 +10,7 @@ class Button:
         self.text = text
         self.color = color
         self.hover_color = hover_color
-        self.t_flag = self.text == 'black'
+        self.t_flag = self.text == 'white'
         self.is_hovered = False
         self.is_selected = state
         self.use_able = use_able

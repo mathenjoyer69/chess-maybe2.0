@@ -1,11 +1,14 @@
+import chess
+
 from GameStates import *
 from functions import *
 from preloading import *
 import sys
 
 def main():
+    board = chess.Board()
     pygame.init()
-    game = PreScreen()
+    game = PreScreen(board)
     game.run()
     if not game.quit:
         sys.exit()
@@ -16,9 +19,9 @@ def main():
     autoplay_online_bool = values['autoplay_online']
     bot_vs_bot = values['bot_vs_bot']
     analysis = values['analysis']
-    board = chess.Board() if not custom_board_bool else chess.Board(None)
+
     if custom_board_bool:
-        custom_board = CustomBoard(board, player_color, autoplay_bool, autoplay_online_bool)
+        custom_board = CustomBoard(chess.Board(None), player_color, autoplay_bool, autoplay_online_bool)
         custom_board.run()
         if not custom_board.back_to_main.variable:
             main()
