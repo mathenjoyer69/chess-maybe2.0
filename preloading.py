@@ -1,5 +1,4 @@
-import pygame
-
+import datetime
 import config
 from buttons import *
 from functions import draw_board, draw_pieces
@@ -20,8 +19,9 @@ class PreScreen:
         self.buttons = [self.autoplay_button, self.bot_vs_bot_button, self.analysis_button, self.autoplay_online_button, self.custom_board_button, self.player_color_button]
         self.start_game = Button(800, config.HEIGHT / 2 - 50, 200, 50, 'start', self.running, 'red', 'green', False, True)
         font1 = pygame.font.SysFont(None, 35)
-        self.text_surface = font1.render('chess game by ariel', True, (255, 0, 0))
-        self.text_rect = self.text_surface.get_rect(topleft=(300, 400))
+        x = datetime.datetime.now()
+        self.text_surface = font1.render(f'chess game by ariel. date: {x.strftime("%x")}', True, (255, 0, 0))
+        self.text_rect = self.text_surface.get_rect(center=(config.WIDTH//2, config.HEIGHT//2))
         self.rect = pygame.Rect(self.text_rect.x, self.text_rect.y, self.text_rect.width, self.text_rect.height)
     def run(self):
         while self.running:
