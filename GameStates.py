@@ -359,7 +359,6 @@ class AutoplayOnlineGame:
 
         start = coordinates[move_str[:2]]
         end = coordinates[move_str[2:]]
-        print(f"Autoplaying move: {move_str} -> {start} to {end}")
         pyautogui.moveTo(start)
         pyautogui.dragTo(end, duration=0.4, button="left")
 

@@ -1,5 +1,3 @@
-import chess
-
 from GameStates import *
 from functions import *
 from preloading import *
