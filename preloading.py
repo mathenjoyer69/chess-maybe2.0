@@ -1,4 +1,7 @@
 import datetime
+import chess
+import pygame.draw
+
 import config
 from buttons import *
 from functions import draw_board, draw_pieces
@@ -20,9 +23,14 @@ class PreScreen:
         self.start_game = Button(800, config.HEIGHT / 2 - 50, 200, 50, 'start', self.running, 'red', 'green', False, True)
         font1 = pygame.font.SysFont(None, 35)
         x = datetime.datetime.now()
-        self.text_surface = font1.render(f'chess game by ariel. date: {x.strftime("%x")}', True, (255, 0, 0))
-        self.text_rect = self.text_surface.get_rect(center=(config.WIDTH//2, config.HEIGHT//2))
+        self.text_surface = font1.render(f'chess game by ariel', True, (255, 0, 0))
+        self.text_rect = self.text_surface.get_rect(center=(config.WIDTH//2-100, config.HEIGHT//2))
         self.rect = pygame.Rect(self.text_rect.x, self.text_rect.y, self.text_rect.width, self.text_rect.height)
+        self.text_surface1 = font1.render(f'date: {x.strftime("%x")}', True, (255, 0, 0))
+        self.text_rect1 = self.text_surface1.get_rect(center=(config.WIDTH//2-100, config.HEIGHT//2+self.text_rect.height))
+        self.rect1 = pygame.Rect(self.text_rect1.x, self.text_rect1.y, self.text_rect1.width, self.text_rect1.height)
+        self.texts = [(self.text_surface, self.text_rect), (self.text_surface1, self.text_rect1)]
+
     def run(self):
         while self.running:
             self.draw()
@@ -41,7 +49,9 @@ class PreScreen:
         draw_board(self.player_color_button.variable)
         draw_pieces(self.player_color_button.variable, self.board)
         pygame.draw.rect(config.screen, 'black', self.rect)
-        config.screen.blit(self.text_surface, self.text_rect)
+        pygame.draw.rect(config.screen, 'black', self.rect1)
+        for surface, rect in self.texts:
+            config.screen.blit(surface, rect)
         pygame.display.flip()
 
     def handle_event(self, event):
@@ -59,7 +69,10 @@ class PreScreen:
             if self.start_game.is_over(mouse_pos):
                 self.start_game.is_selected = not self.start_game.is_selected
                 self.running = False
-
+        if self.custom_board_button.variable:
+            self.board = chess.Board(None)
+        else:
+            self.board = chess.Board()
     def get_values(self):
         return {'autoplay':self.autoplay_button.variable, 'bot_vs_bot':self.bot_vs_bot_button.variable,
                 'analysis':self.analysis_button.variable, 'autoplay_online':self.autoplay_online_button.variable,

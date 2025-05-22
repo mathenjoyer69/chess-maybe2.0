@@ -9,6 +9,7 @@ LIGHT_BROWN = (237, 204, 155)
 start = False
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+font = pygame.font.SysFont(None, 24)
 PIECE_IMAGES = {}
 PIECES = {'p': 'bp.png', 'r': 'br.png', 'n': 'bn.png', 'b': 'bb.png', 'q': 'bq.png', 'k': 'bk.png', 'P': 'p.png', 'R': 'r.png', 'N': 'n.png', 'B': 'b.png', 'Q': 'q.png', 'K': 'k.png'}
 for piece, filename in PIECES.items():

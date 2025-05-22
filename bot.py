@@ -310,5 +310,5 @@ class Bot:
             return None
 
     def get_move_time(self):
-        return self.passed_time/100
+        return self.passed_time/1000
 

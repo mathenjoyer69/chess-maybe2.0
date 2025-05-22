@@ -1,4 +1,6 @@
 import time
+
+import chess
 import pyautogui
 from functions import *
 import config
@@ -103,7 +105,9 @@ class NormalGame:
         self.timer = ChessClock(800, HEIGHT//2, 200, 50)
         self.reset_button = Button(800, HEIGHT//2 + 50, 200, 50, 'reset game', None, 'white', 'green', self.reset, True)
         self.back_to_main = Button(800, HEIGHT//2 - 100, 200, 50, 'back', False, 'red', 'green', False, True)
-
+        self.piece_values = {chess.PAWN: 1, chess.KNIGHT: 3, chess.BISHOP: 3, chess.ROOK: 5, chess.QUEEN: 9, chess.KING: 0}
+        self.w_value_pos = (800, 0) if self.flipped else (800, 700)
+        self.b_value_pos = (800, 0) if not self.flipped else (800, 700)
     def run(self):
         while self.running and not self.autoplay_online and not self.custom_board and not self.bot_vs_bot:
             for event in pygame.event.get():
@@ -130,6 +134,8 @@ class NormalGame:
                 self.handle_autoplay()
 
     def update_screen(self):
+        self.w_value_pos = (800, 100) if not self.flipped else (800, 700)
+        self.b_value_pos = (800, 100) if self.flipped else (800, 700)
         screen.fill('black')
         draw_board(self.flipped)
         draw_pieces(self.flipped, self.board)
@@ -139,7 +145,27 @@ class NormalGame:
         self.bot.passed_time = 0
         self.timer.draw(screen)
         self.back_to_main.draw(config.screen)
+        b_value, w_value = self.get_player_value()
+        b_value_surface = font.render(f'{b_value}', True, 'white')
+        b_value_rect = b_value_surface.get_rect(topleft = self.b_value_pos)
+        screen.blit(b_value_surface, b_value_rect)
+        w_value_surface = font.render(f'{w_value}', True, 'white')
+        w_value_rect = w_value_surface.get_rect(topleft = self.w_value_pos)
+        screen.blit(w_value_surface, w_value_rect)
         pygame.display.flip()
+
+    def get_player_value(self):
+        white_value = 0
+        black_value = 0
+        for square in chess.SQUARES:
+            piece = self.board.piece_at(square)
+            if piece:
+                piece_value = self.piece_values[piece.piece_type]
+                if piece.color == chess.WHITE:
+                    white_value += piece_value
+                else:
+                    black_value += piece_value
+        return black_value - white_value, white_value - black_value
 
     def make_bot_move(self):
         self.bot.start_time = pygame.time.get_ticks() / 1000
