@@ -1,7 +1,5 @@
 import datetime
 import chess
-import pygame.draw
-
 import config
 from buttons import *
 from functions import draw_board, draw_pieces
@@ -17,9 +15,9 @@ class PreScreen:
         self.analysis_button = Button(800, 100, 200, 50, 'analysis', False, 'red', 'green', False, True)
         self.autoplay_online_button = Button(800, 150, 200, 50, 'autoplay online', False, 'red', 'green', False, True)
         self.custom_board_button = Button(800, 200, 200, 50, 'custom board', False, 'red', 'green', False, True)
-        self.player_color_button = Button(800, 250, 200, 50, 'white', True, 'white', 'black', False, True)
+        self.player_color_button = ColorButton(800, 250, 200, 50, 'white', 'black', False)
         #self.blitz_button
-        self.buttons = [self.autoplay_button, self.bot_vs_bot_button, self.analysis_button, self.autoplay_online_button, self.custom_board_button, self.player_color_button]
+        self.buttons = [self.autoplay_button, self.bot_vs_bot_button, self.analysis_button, self.autoplay_online_button, self.custom_board_button]
         self.start_game = Button(800, config.HEIGHT / 2 - 50, 200, 50, 'start', self.running, 'red', 'green', False, True)
         font1 = pygame.font.SysFont(None, 35)
         x = datetime.datetime.now()
@@ -45,9 +43,13 @@ class PreScreen:
         config.screen.fill('black')
         for button in self.buttons:
             button.draw(config.screen)
+        if not self.player_color_button.is_selected:
+            self.player_color_button.draw_black(config.screen)
+        else:
+            self.player_color_button.draw_white(config.screen)
         self.start_game.draw(config.screen)
-        draw_board(self.player_color_button.variable)
-        draw_pieces(self.player_color_button.variable, self.board)
+        draw_board(self.player_color_button.is_selected)
+        draw_pieces(self.player_color_button.is_selected, self.board)
         pygame.draw.rect(config.screen, 'black', self.rect)
         pygame.draw.rect(config.screen, 'black', self.rect1)
         for surface, rect in self.texts:
@@ -66,6 +68,8 @@ class PreScreen:
                 if button.is_over(mouse_pos):
                     button.is_selected = not button.is_selected
                     button.variable = not button.variable
+            if self.player_color_button.is_over(mouse_pos):
+                self.player_color_button.is_selected = not self.player_color_button.is_selected
             if self.start_game.is_over(mouse_pos):
                 self.start_game.is_selected = not self.start_game.is_selected
                 self.running = False
@@ -76,4 +80,4 @@ class PreScreen:
     def get_values(self):
         return {'autoplay':self.autoplay_button.variable, 'bot_vs_bot':self.bot_vs_bot_button.variable,
                 'analysis':self.analysis_button.variable, 'autoplay_online':self.autoplay_online_button.variable,
-                'custom_board':self.custom_board_button.variable, 'player_color':self.player_color_button.variable}
+                'custom_board':self.custom_board_button.variable, 'player_color':self.player_color_button.is_selected}

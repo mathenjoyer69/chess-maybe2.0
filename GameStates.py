@@ -1,6 +1,4 @@
 import time
-
-import chess
 import pyautogui
 from functions import *
 import config
@@ -237,6 +235,8 @@ class NormalGame:
                     self.board = chess.Board()
                     self.flipped = self.original_flipped
                     self.reset_button.is_selected = False
+                    self.timer.black_time_seconds = 300
+                    self.timer.white_time_seconds = 300
 
             if self.timer.is_over(mouse_pos):
                 self.timer.is_selected = not self.timer.is_selected

@@ -104,3 +104,34 @@ class ChessClock:
             self.game_over_flag = True
 
         return self.game_over_flag
+
+class ColorButton:
+    def __init__(self, x, y, width, height, color, hover_color, state):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.color = color
+        self.hover_color = hover_color
+        self.is_hovered = False
+        self.is_selected = state
+        self.text1 = 'white'
+        self.text2 = 'black'
+
+    def draw_white(self, surface):
+        color = self.color if self.is_hovered or self.is_selected else self.hover_color
+        text_color = self.hover_color if self.is_hovered or self.is_selected else self.color
+        pygame.draw.rect(surface, color, self.rect, border_radius=5)
+        pygame.draw.rect(surface, (0, 0, 0), self.rect, 2, border_radius=5)
+        text_surface = font.render(self.text1, True, text_color)
+        text_rect = text_surface.get_rect(center=self.rect.center)
+        surface.blit(text_surface, text_rect)
+
+    def draw_black(self, surface):
+        color = self.color if self.is_hovered or self.is_selected else self.hover_color
+        text_color = self.hover_color if self.is_hovered or self.is_selected else self.color
+        pygame.draw.rect(surface, color, self.rect, border_radius=5)
+        pygame.draw.rect(surface, (0, 0, 0), self.rect, 2, border_radius=5)
+        text_surface = font.render(self.text2, True, text_color)
+        text_rect = text_surface.get_rect(center=self.rect.center)
+        surface.blit(text_surface, text_rect)
+
+    def is_over(self, pos):
+        return self.rect.collidepoint(pos)
