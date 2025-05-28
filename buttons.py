@@ -105,6 +105,7 @@ class ChessClock:
 
         return self.game_over_flag
 
+
 class ColorButton:
     def __init__(self, x, y, width, height, color, hover_color, state):
         self.rect = pygame.Rect(x, y, width, height)

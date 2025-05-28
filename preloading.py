@@ -77,6 +77,7 @@ class PreScreen:
             self.board = chess.Board(None)
         else:
             self.board = chess.Board()
+
     def get_values(self):
         return {'autoplay':self.autoplay_button.variable, 'bot_vs_bot':self.bot_vs_bot_button.variable,
                 'analysis':self.analysis_button.variable, 'autoplay_online':self.autoplay_online_button.variable,

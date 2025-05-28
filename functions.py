@@ -2,6 +2,7 @@ from config import *
 import chess
 from buttons import *
 
+
 def draw_board(flipped):
     for row in range(ROWS):
         for col in range(COLS):
