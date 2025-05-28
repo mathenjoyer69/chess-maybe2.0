@@ -21,7 +21,9 @@ def main():
     if custom_board_bool:
         custom_board = CustomBoard(chess.Board(None), player_color, autoplay_bool, autoplay_online_bool)
         custom_board.run()
-        if not custom_board.back_to_main.variable:
+        board = custom_board.get_board()
+        custom_board_bool = False
+        if custom_board.back_to_main.variable:
             main()
 
     if not autoplay_online_bool and not custom_board_bool and not bot_vs_bot:

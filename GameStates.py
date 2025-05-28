@@ -14,12 +14,11 @@ class CustomBoard:
         self.autoplay_bool = autoplay
         self.autoplay_online_bool = autoplay_online
         self.custom_bool = False
-        self.start_game = Button(800, HEIGHT//2, 200, 50, 'start game', None, 'red', 'green', False, True)
+        self.start_game = Button(800, HEIGHT//2, 200, 50, 'start game', False, 'red', 'green', False, True)
         self.back_to_main = Button(800, HEIGHT//2+50, 200, 50, 'back', False, 'red', 'green', False, True)
 
     def run(self):
         while self.running:
-
             config.screen.fill('black')
             (mx, my) = pygame.mouse.get_pos()
             draw_board(self.flipped)
@@ -82,6 +81,9 @@ class CustomBoard:
                 self.custom_bool = not self.custom_bool
                 self.back_to_main.is_selected = not self.back_to_main.is_selected
                 self.running = False
+
+    def get_board(self):
+        return self.board
 
 class NormalGame:
     def __init__(self, board, bot, flipped, autoplay, autoplay_online, player_color, custom_board=False, bot_vs_bot=False):
