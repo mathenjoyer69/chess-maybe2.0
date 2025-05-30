@@ -28,6 +28,7 @@ def main():
 
     if not autoplay_online_bool and not custom_board_bool and not bot_vs_bot:
         normal_game = NormalGame(board, chess_bot, player_color, autoplay_bool, autoplay_online_bool, player_color)
+        print(board)
         normal_game.run()
         if normal_game.back_to_main.variable:
             main()
