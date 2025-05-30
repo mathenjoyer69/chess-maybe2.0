@@ -78,8 +78,8 @@ class CustomBoard:
                 self.running = False
 
             if self.back_to_main.is_over(mouse_pos):
-                self.custom_bool = not self.custom_bool
                 self.back_to_main.is_selected = not self.back_to_main.is_selected
+                self.back_to_main.variable = not self.back_to_main.variable
                 self.running = False
 
     def get_board(self):
